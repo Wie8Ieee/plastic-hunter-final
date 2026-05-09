@@ -1,0 +1,82 @@
+[
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567801",
+    "position": 1,
+    "filepath": "src/pages/slides/Slide01Title.tsx",
+    "title": "Plastic Hunter AI — Title",
+    "description": "Title slide with hero ocean image, team name, and hackathon branding",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567802",
+    "position": 2,
+    "filepath": "src/pages/slides/Slide02Problem.tsx",
+    "title": "The Problem",
+    "description": "Marine plastic pollution scale — 8M tonnes/year, manual detection failures",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567803",
+    "position": 3,
+    "filepath": "src/pages/slides/Slide03Baseline.tsx",
+    "title": "Baseline Scenario",
+    "description": "Without AI: slow, costly, incomplete manual surveys — 26% missed",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567804",
+    "position": 4,
+    "filepath": "src/pages/slides/Slide04Solution.tsx",
+    "title": "Proposed Solution",
+    "description": "AI-powered image analysis: Detect, Map, Analyse — three pillars",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567805",
+    "position": 5,
+    "filepath": "src/pages/slides/Slide05Architecture.tsx",
+    "title": "System Architecture",
+    "description": "End-to-end pipeline: Upload → FastAPI → CV Engine → SQLite → Dashboard",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567806",
+    "position": 6,
+    "filepath": "src/pages/slides/Slide06Implementation.tsx",
+    "title": "Implementation Method",
+    "description": "Python + FastAPI backend, CV simulation engine, single-page HTML frontend",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567807",
+    "position": 7,
+    "filepath": "src/pages/slides/Slide07Results.tsx",
+    "title": "Results",
+    "description": "25.5% reduction: baseline 106 items vs AI-optimised 79 items",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567808",
+    "position": 8,
+    "filepath": "src/pages/slides/Slide08Impact.tsx",
+    "title": "Impact and Limitations",
+    "description": "Scalable monitoring impact vs honest scope of simulation approach",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567809",
+    "position": 9,
+    "filepath": "src/pages/slides/Slide09Repository.tsx",
+    "title": "Repository and Reproducibility",
+    "description": "File structure, how to run, submission checklist",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567810",
+    "position": 10,
+    "filepath": "src/pages/slides/Slide10Takeaway.tsx",
+    "title": "Final Takeaway",
+    "description": "Closing slide — simple technology, measurable impact, transparent evidence",
+    "speakerNotes": ""
+  }
+]

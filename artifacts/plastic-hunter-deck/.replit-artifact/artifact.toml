@@ -1,0 +1,31 @@
+kind = "slides"
+previewPath = "/plastic-hunter-deck/"
+title = "Plastic Hunter AI - Pitch Deck"
+version = "1.0.0"
+id = "artifacts/plastic-hunter-deck"
+router = "path"
+
+[[integratedSkills]]
+name = "slides"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/plastic-hunter-deck/" ]
+localPort = 25441
+
+[services.development]
+run = "pnpm --filter @workspace/plastic-hunter-deck run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/plastic-hunter-deck", "run", "build" ]
+publicDir = "artifacts/plastic-hunter-deck/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25441"
+BASE_PATH = "/plastic-hunter-deck/"
