@@ -74,9 +74,9 @@ def _analyse_image(img: Image.Image) -> Dict[str, Any]:
     }
 
 
-def _place_boxes(w: int, h: int, n: int, stats: Dict[str, Any]) -> List[Tuple[int, int, int, int]]:
+def _place_boxes(w: int, h: int, n: int, stats: Dict[str, Any], seed: int = 42) -> List[Tuple[int, int, int, int]]:
     """Return n non-overlapping bounding boxes guided by image statistics."""
-    rng = random.Random(int(time.time() * 1000) % 99991)
+    rng = random.Random(seed)
     hotcells = stats["hotcells"]
 
     # Convert grid cells → pixel regions (image is logically divided into 4×4)
@@ -133,21 +133,23 @@ def _place_boxes(w: int, h: int, n: int, stats: Dict[str, Any]) -> List[Tuple[in
     return boxes
 
 
-def _simulate_detections(image: Image.Image) -> List[Dict[str, Any]]:
+def _simulate_detections(image: Image.Image, seed: int = 42) -> List[Dict[str, Any]]:
     w, h = image.size
     stats = _analyse_image(image)
+
+    rng = random.Random(seed)
 
     # Number of detections correlates loosely with edge density
     edge_d = stats["edge_density"]
     base_count = max(1, int(edge_d * 18))
-    n = random.randint(max(1, base_count - 2), min(12, base_count + 3))
+    n = rng.randint(max(1, base_count - 2), min(12, base_count + 3))
 
-    boxes = _place_boxes(w, h, n, stats)
-    chosen_types = random.choices(PLASTIC_TYPES, k=len(boxes))
+    boxes = _place_boxes(w, h, n, stats, seed)
+    chosen_types = rng.choices(PLASTIC_TYPES, k=len(boxes))
 
     detections = []
     for (x1, y1, x2, y2), (label, base_conf) in zip(boxes, chosen_types):
-        jitter = random.uniform(-0.10, 0.07)
+        jitter = rng.uniform(-0.10, 0.07)
         confidence = round(max(0.38, min(0.97, base_conf + jitter)), 4)
         detections.append({
             "label": label,
@@ -231,7 +233,8 @@ def run_detection(image_bytes: bytes, filename: str) -> Dict[str, Any]:
     if max(image.size) > max_dim:
         image.thumbnail((max_dim, max_dim), Image.LANCZOS)
 
-    detections = _simulate_detections(image)
+    seed = sum(image_bytes[:200]) % 99991
+    detections = _simulate_detections(image, seed)
     annotated = _draw_boxes(image.copy(), detections)
 
     stem = Path(filename).stem

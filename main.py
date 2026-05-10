@@ -1,16 +1,25 @@
 import os
 import random
+import sqlite3
 from pathlib import Path
 from typing import Any, Dict
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from database import get_all_results, get_stats, init_db, save_detection
+from database import get_all_results, get_stats, init_db, reset_and_reseed, save_detection
 from detector import run_detection
 
 app = FastAPI(title="Plastic Hunter AI", version="1.0.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 RESULTS_DIR = Path("results")
 RESULTS_DIR.mkdir(exist_ok=True)
@@ -34,6 +43,19 @@ COASTAL_LOCATIONS = [
     (14.0583, 108.2772),
     (-8.3405, 115.0920),
 ]
+
+
+@app.get("/")
+async def root():
+    return FileResponse("static/index.html")
+
+
+@app.get("/favicon.ico")
+async def favicon():
+    path = STATIC_DIR / "favicon.ico"
+    if path.exists():
+        return FileResponse(str(path))
+    raise HTTPException(status_code=404, detail="Not found")
 
 
 @app.post("/detect")
@@ -96,6 +118,12 @@ async def stats():
     return JSONResponse(data)
 
 
+@app.post("/demo")
+async def reload_demo():
+    count = reset_and_reseed()
+    return JSONResponse({"message": "Demo data reloaded successfully", "records": count})
+
+
 @app.get("/results/{filename}")
 async def get_result_image(filename: str):
     path = RESULTS_DIR / filename
@@ -104,4 +132,4 @@ async def get_result_image(filename: str):
     return FileResponse(str(path), media_type="image/jpeg")
 
 
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")

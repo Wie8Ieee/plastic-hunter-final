@@ -1,7 +1,6 @@
 import sqlite3
-import os
-from datetime import datetime
-from typing import List, Dict, Any
+from datetime import datetime, timedelta
+from typing import Any, Dict, List
 
 DB_PATH = "detections.db"
 
@@ -32,6 +31,19 @@ def init_db():
     conn.close()
 
 
+def reset_and_reseed() -> int:
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM detections")
+    conn.commit()
+    _seed_demo_data(cursor)
+    conn.commit()
+    cursor.execute("SELECT COUNT(*) FROM detections")
+    count = cursor.fetchone()[0]
+    conn.close()
+    return count
+
+
 def _seed_demo_data(cursor):
     demo_locations = [
         (36.8065, 10.1815, "demo_beach_tunisia.jpg", 7, 0.81),
@@ -48,11 +60,10 @@ def _seed_demo_data(cursor):
         (34.0522, -118.2437, "demo_la_beach.jpg", 10, 0.86),
     ]
 
+    base_date = datetime.now() - timedelta(days=11)
     base_dates = [
-        "2025-04-28", "2025-04-29", "2025-04-30",
-        "2025-05-01", "2025-05-02", "2025-05-03",
-        "2025-05-04", "2025-05-05", "2025-05-06",
-        "2025-05-07", "2025-05-08", "2025-05-09",
+        (base_date + timedelta(days=i)).strftime("%Y-%m-%d")
+        for i in range(12)
     ]
 
     for i, (lat, lon, img, count, conf) in enumerate(demo_locations):

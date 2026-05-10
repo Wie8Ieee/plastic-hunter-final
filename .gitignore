@@ -47,3 +47,15 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# Plastic Hunter AI — runtime files
+detections.db
+results/*.jpg
+results/*.jpeg
+results/*.png
