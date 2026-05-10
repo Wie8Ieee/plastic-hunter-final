@@ -11,3 +11,15 @@ id = "ZFWcjroYRCqthSww8obYi"
 uri = "file://SUBMISSION_CONCEPT_DOCUMENT.md"
 type = "text"
 title = "Plastic Hunter AI — Phase 1 Concept Document"
+
+[[outputs]]
+id = "ckY3kEIFlyzP8OPfbtFry"
+uri = "file://.local/outputs/Plastic-Hunter-AI---Hackathon-Presentation.pdf"
+type = "pdf"
+title = "Presentation PDF — 10 Slides"
+
+[[outputs]]
+id = "Uxg4F8YFOR04Ds9LOnq1c"
+uri = "file://.local/outputs/Plastic-Hunter-AI-Final-Report.pdf"
+type = "pdf"
+title = "Final Report PDF — Concept Document"
