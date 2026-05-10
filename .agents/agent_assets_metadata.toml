@@ -23,3 +23,9 @@ id = "Uxg4F8YFOR04Ds9LOnq1c"
 uri = "file://.local/outputs/Plastic-Hunter-AI-Final-Report.pdf"
 type = "pdf"
 title = "Final Report PDF — Concept Document"
+
+[[outputs]]
+id = "MOq9An5xfWVotL4GChzfW"
+uri = "file://.local/outputs/Plastic-Hunter-AI---Hackathon-Presentation.pptx"
+type = "slides"
+title = "Presentation PPTX — 10 Slides (PowerPoint)"
