@@ -29,3 +29,9 @@ id = "MOq9An5xfWVotL4GChzfW"
 uri = "file://.local/outputs/Plastic-Hunter-AI---Hackathon-Presentation.pptx"
 type = "slides"
 title = "Presentation PPTX — 10 Slides (PowerPoint)"
+
+[[outputs]]
+id = "7vqxLO2ooET5jWI6vmutA"
+uri = "file://.local/outputs/plastic-hunter-ai-github.zip"
+type = "unspecified"
+title = "Plastic Hunter AI — GitHub Files (ZIP)"
