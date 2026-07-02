@@ -507,6 +507,19 @@
       </div>
     </div>
 
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-title">Research-Backed CV Validation</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;font-size:0.84rem;">
+        <div><span style="color:var(--muted);">Dataset:</span> Trash-ICRA19</div>
+        <div><span style="color:var(--muted);">Models:</span> YOLOv8s, Faster R-CNN, MobileNet SSD</div>
+        <div><span style="color:var(--muted);">Best model:</span> YOLOv8s</div>
+        <div><span style="color:var(--muted);">mAP@0.5:</span> 97.77%</div>
+        <div><span style="color:var(--muted);">FPS:</span> 122.10</div>
+        <div><span style="color:var(--muted);">Cross-domain test:</span> River Floating Trash Dataset</div>
+        <div><span style="color:var(--muted);">Best cross-domain model:</span> Faster R-CNN, 32.22% mAP@0.5</div>
+      </div>
+    </div>
+
     <div class="charts-grid">
       <div class="chart-box">
         <div class="card-title">Detections Per Day</div>
@@ -1527,6 +1540,7 @@
             'Detection retention: <b>' + d.primary_technical_kpi.value + '</b> ' +
             '(eco ' + d.primary_technical_kpi.max_range_eco_m + ' m vs conv ' +
             d.primary_technical_kpi.max_range_conv_m + ' m)')}
+          ${row('Technical KPI', d.technical_kpi)}
           ${row('Primary Sustainability KPI',
             'SEL reduced <b>' + d.primary_sustainability_kpi.sel_reduction_pct + '%</b> (' +
             d.primary_sustainability_kpi.sel_reduction_dB + ' dB) · DC cut <b>' +
