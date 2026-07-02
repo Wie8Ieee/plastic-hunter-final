@@ -126,7 +126,7 @@ async def detect(
     )
     logger.info("stored detection id=%s image=%s count=%s", record_id, result["annotated_image"], result["plastic_count"])
 
-    return JSONResponse({
+    response = {
         "id":                 record_id,
         "plastic_count":      result["plastic_count"],
         "avg_confidence":     result["avg_confidence"],
@@ -136,7 +136,19 @@ async def detect(
         "detection_mode":     result["detection_mode"],
         "processing_time_ms": processing_time_ms,
         "location":           {"latitude": lat, "longitude": lon},
-    })
+    }
+    for key in (
+        "detector_mode",
+        "warning",
+        "quality_score",
+        "false_positive_filters_applied",
+        "model_path",
+        "model_classes",
+    ):
+        if key in result:
+            response[key] = result[key]
+
+    return JSONResponse(response)
 
 
 @app.get("/results")

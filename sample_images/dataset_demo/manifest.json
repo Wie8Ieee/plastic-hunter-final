@@ -1,0 +1,70 @@
+[
+  {
+    "slot": "01_plastic_bottle",
+    "status": "copied",
+    "source_dataset": "TACO - Trash Annotations in Context",
+    "source_url": "https://github.com/pedropro/TACO",
+    "source_split": "train",
+    "source_image": "datasets/plastic_hunter/images/train/taco_00002.jpg",
+    "source_label": "datasets/plastic_hunter/labels/train/taco_00002.txt",
+    "classes_in_label": [
+      "plastic_bottle",
+      "plastic_cap"
+    ],
+    "demo_image": "sample_images/dataset_demo/01_plastic_bottle.jpg",
+    "demo_label": "sample_images/dataset_demo/01_plastic_bottle.txt"
+  },
+  {
+    "slot": "02_plastic_bag",
+    "status": "copied",
+    "source_dataset": "TACO - Trash Annotations in Context",
+    "source_url": "https://github.com/pedropro/TACO",
+    "source_split": "train",
+    "source_image": "datasets/plastic_hunter/images/train/taco_00010.jpg",
+    "source_label": "datasets/plastic_hunter/labels/train/taco_00010.txt",
+    "classes_in_label": [
+      "plastic_bag"
+    ],
+    "demo_image": "sample_images/dataset_demo/02_plastic_bag.jpg",
+    "demo_label": "sample_images/dataset_demo/02_plastic_bag.txt"
+  },
+  {
+    "slot": "03_rope_or_fishing_line",
+    "status": "copied",
+    "source_dataset": "TACO - Trash Annotations in Context",
+    "source_url": "https://github.com/pedropro/TACO",
+    "source_split": "train",
+    "source_image": "datasets/plastic_hunter/images/train/taco_00086.jpg",
+    "source_label": "datasets/plastic_hunter/labels/train/taco_00086.txt",
+    "classes_in_label": [
+      "rope_fishing_line"
+    ],
+    "demo_image": "sample_images/dataset_demo/03_rope_or_fishing_line.jpg",
+    "demo_label": "sample_images/dataset_demo/03_rope_or_fishing_line.txt"
+  },
+  {
+    "slot": "04_foam_or_plastic_debris",
+    "status": "copied",
+    "source_dataset": "TACO - Trash Annotations in Context",
+    "source_url": "https://github.com/pedropro/TACO",
+    "source_split": "train",
+    "source_image": "datasets/plastic_hunter/images/train/taco_00011.jpg",
+    "source_label": "datasets/plastic_hunter/labels/train/taco_00011.txt",
+    "classes_in_label": [
+      "foam_piece",
+      "plastic_bag",
+      "plastic_debris"
+    ],
+    "demo_image": "sample_images/dataset_demo/04_foam_or_plastic_debris.jpg",
+    "demo_label": "sample_images/dataset_demo/04_foam_or_plastic_debris.txt"
+  },
+  {
+    "slot": "05_clean_beach_negative",
+    "status": "not_created",
+    "reason": "A clean beach negative sample was not present in the imported TACO plastic subset. Do not use a random web image or fake label; add a verified negative from BePLi/Roboflow/background split when available.",
+    "recommended_sources": [
+      "BePLi Dataset v1/v2 on SEANOE",
+      "Roboflow Aerial Beach Waste / Beach Waste datasets if export includes background images"
+    ]
+  }
+]

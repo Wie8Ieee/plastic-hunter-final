@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Plastic Hunter AI</title>
+  <title>Plastic Hunter Marine Operations Console</title>
 
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -389,6 +389,96 @@
       border-radius: 50%; margin-right: 3px; vertical-align: middle;
     }
     /* ─── MODALS ─── */
+    .preset-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px;
+    }
+    .preset-btn {
+      padding: 8px 9px; border: 1px solid var(--border); border-radius: var(--radius);
+      background: var(--bg); color: var(--fg); font-size: 0.72rem; cursor: pointer;
+      text-align: left; transition: all .15s;
+    }
+    .preset-btn:hover, .preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(6,182,212,.08); }
+    .sonar-disclaimer {
+      margin-top: 12px; padding: 10px 12px; border: 1px solid rgba(245,158,11,.35);
+      background: rgba(245,158,11,.08); color: #fbbf24; border-radius: var(--radius);
+      font-size: 0.74rem; line-height: 1.45;
+    }
+    .mission-panel {
+      margin-top: 16px; display: grid; grid-template-columns: minmax(280px, 1.4fr) minmax(260px, .9fr);
+      gap: 16px; align-items: stretch;
+    }
+    @media (max-width: 920px) { .mission-panel { grid-template-columns: 1fr; } }
+    .mission-view {
+      width: 100%; min-height: 300px; background: #061015; border: 1px solid var(--border);
+      border-radius: var(--radius); display: block;
+    }
+    .decision-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 640px) { .decision-grid { grid-template-columns: 1fr; } }
+    .decision-box {
+      background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 12px;
+    }
+    .decision-label {
+      color: var(--muted); font-size: 0.68rem; text-transform: uppercase; letter-spacing: .04em;
+      margin-bottom: 4px;
+    }
+    .decision-value { color: var(--fg); font-size: 0.85rem; line-height: 1.45; }
+    .copy-row { display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-top: 12px; }
+    .mission-status-strip {
+      display: grid;
+      grid-template-columns: 1.15fr repeat(3, minmax(150px, .75fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .status-cell {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-left: 4px solid #177e89;
+      border-radius: var(--radius);
+      padding: 14px 16px;
+    }
+    .status-cell.warning { border-left-color: #b7791f; }
+    .status-cell strong {
+      display: block;
+      color: #122536;
+      font-size: .96rem;
+      margin-bottom: 2px;
+    }
+    .status-cell span {
+      display: block;
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.45;
+    }
+    .ops-section {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 14px;
+      align-items: start;
+      margin-bottom: 16px;
+    }
+    .brief-list {
+      display: grid;
+      gap: 8px;
+      font-size: .84rem;
+    }
+    .brief-list div {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #edf0f2;
+    }
+    .brief-list span:first-child { color: var(--muted); }
+    .brief-list span:last-child { color: #172635; font-weight: 650; text-align: right; }
+    .compact-table table {
+      font-size: .78rem;
+    }
+    .compact-table th,
+    .compact-table td {
+      padding: 8px 10px;
+      vertical-align: top;
+    }
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.72);
       display: flex; align-items: center; justify-content: center;
@@ -438,6 +528,738 @@
       font-size: 0.81rem; color: var(--fg); line-height: 1.65; margin: 2px 0;
     }
     .disclose-section ul { padding-left: 18px; margin: 4px 0; }
+
+    /* Final visual polish: marine command-center treatment */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(56,189,248,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56,189,248,0.02) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent 70%);
+    }
+
+    nav {
+      min-height: 68px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.24);
+    }
+    .logo {
+      color: #f8fbfd;
+      white-space: nowrap;
+    }
+    .logo-icon {
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.16), 0 12px 26px rgba(20,184,166,0.22);
+    }
+    .nav-tabs {
+      background: rgba(17,25,34,0.55);
+      border: 1px solid rgba(52,71,88,0.72);
+      border-radius: 10px;
+      padding: 4px;
+    }
+    .nav-tab {
+      min-width: 84px;
+      color: #9fb1c3;
+    }
+    .nav-tab.active {
+      background: linear-gradient(180deg, rgba(20,184,166,0.16), rgba(56,189,248,0.08));
+      color: #6ff7e7;
+      border: 1px solid rgba(20,184,166,0.34);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+    }
+
+    .page-header {
+      border-left: 3px solid var(--accent);
+      padding-left: 16px;
+    }
+    .page-header h2 {
+      color: #f8fbfd;
+      text-shadow: 0 1px 0 rgba(0,0,0,0.18);
+    }
+
+    .card,
+    .kpi,
+    .chart-box,
+    .stat-card,
+    .reduction-banner {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0)),
+        var(--surface);
+      border-color: rgba(52,71,88,0.82);
+    }
+    .card:hover,
+    .kpi:hover,
+    .chart-box:hover,
+    .stat-card:hover {
+      border-color: rgba(56,189,248,0.42);
+    }
+
+    .card-title {
+      color: #9db5c8;
+    }
+    .card-title::before {
+      box-shadow: 0 0 16px rgba(20,184,166,0.46);
+    }
+
+    .dash-top {
+      gap: 18px;
+    }
+    .kpi {
+      position: relative;
+      overflow: hidden;
+      min-height: 112px;
+    }
+    .kpi::after {
+      content: "";
+      position: absolute;
+      inset: auto 18px 0 18px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      opacity: 0.55;
+    }
+    .kpi-value {
+      font-size: 2.15rem;
+      letter-spacing: 0;
+    }
+    .kpi-label {
+      color: #abc0d0;
+    }
+
+    .upload-zone {
+      min-height: 310px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background:
+        linear-gradient(180deg, rgba(20,184,166,0.08), rgba(56,189,248,0.035)),
+        var(--surface);
+    }
+    .upload-zone::after {
+      content: "";
+      position: absolute;
+      inset: 14px;
+      border: 1px solid rgba(56,189,248,0.08);
+      border-radius: calc(var(--radius) - 2px);
+      pointer-events: none;
+    }
+    .upload-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 76px;
+      height: 42px;
+      margin-bottom: 18px;
+      border: 1px solid rgba(20,184,166,0.38);
+      border-radius: 999px;
+      color: #8ff8ea;
+      background: rgba(20,184,166,0.08);
+      font-size: 0.75rem !important;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+    }
+    .upload-title {
+      font-size: 1.16rem;
+      color: #f8fbfd;
+    }
+
+    .btn,
+    .btn-sm,
+    .ppi-mode-btn,
+    .modal-close {
+      font-family: inherit;
+    }
+    .btn:focus-visible,
+    .btn-sm:focus-visible,
+    .nav-tab:focus-visible,
+    .ppi-mode-btn:focus-visible,
+    .modal-close:focus-visible {
+      outline: 2px solid rgba(56,189,248,0.8);
+      outline-offset: 2px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #0f766e, #0891b2);
+    }
+    .btn-outline,
+    .btn-sm {
+      background: rgba(17,25,34,0.82);
+    }
+
+    #leaflet-map {
+      min-height: 520px;
+      background: #0b1117;
+    }
+    .map-legend {
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(17,25,34,0.72);
+    }
+
+    .mission-flow {
+      grid-template-columns: repeat(9, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .mission-step {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(56,189,248,0.045), rgba(20,184,166,0.025)),
+        var(--surface2);
+    }
+    .mission-step::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      opacity: 0.65;
+    }
+    .mission-step-num {
+      color: #69f5e8;
+      letter-spacing: 0.04em;
+    }
+    .mission-step-label {
+      color: #f8fbfd;
+    }
+
+    .charts-grid {
+      gap: 20px;
+    }
+    .chart-box canvas,
+    .card canvas {
+      filter: saturate(1.04);
+    }
+    .history-table-wrap {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: auto;
+    }
+    th {
+      background: rgba(23,34,45,0.78);
+      color: #9fb1c3;
+    }
+    td {
+      color: #dbe7ef;
+    }
+
+    .sonar-grid {
+      gap: 20px;
+    }
+    .sonar-param-group input[type=range] {
+      height: 6px;
+      background: linear-gradient(90deg, rgba(20,184,166,0.5), var(--border));
+    }
+    .sonar-param-group select {
+      min-height: 38px;
+      background: var(--surface2);
+    }
+    .ppi-card {
+      min-height: 420px;
+    }
+    .ppi-mode-row {
+      background: rgba(11,17,23,0.42);
+    }
+    .ppi-mode-btn.active {
+      color: #8ff8ea;
+      background: rgba(20,184,166,0.12);
+    }
+    .ppi-wrap {
+      min-height: 300px;
+      background:
+        radial-gradient(circle at center, rgba(20,184,166,0.10), transparent 58%),
+        #061015;
+    }
+
+    .eco-kpi,
+    .stat-mini {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0)),
+        var(--surface2);
+    }
+    .eco-kpi-val,
+    .reduction-value {
+      color: #4ade80;
+    }
+
+    .modal-overlay {
+      padding: 20px;
+    }
+    .modal-box {
+      max-width: 760px;
+      background:
+        linear-gradient(180deg, rgba(56,189,248,0.035), rgba(20,184,166,0.012)),
+        var(--surface);
+    }
+    .modal-hdr {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-close {
+      min-width: 64px;
+      padding: 7px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(17,25,34,0.82);
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .modal-close:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .toast {
+      background: rgba(17,25,34,0.96);
+      border-color: rgba(56,189,248,0.24);
+    }
+
+    @media (max-width: 1180px) {
+      .mission-flow {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .dash-top {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 760px) {
+      nav {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 14px;
+        padding: 14px 16px;
+      }
+      .logo {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .nav-tabs {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 4px;
+        overflow-x: auto;
+      }
+      .nav-tab {
+        min-width: 0;
+        padding: 9px 7px;
+        font-size: 0.78rem;
+      }
+      main {
+        padding: 24px 14px 36px;
+      }
+      .page-header {
+        padding-left: 12px;
+      }
+      .page-header h2 {
+        font-size: 1.32rem;
+      }
+      .dash-top,
+      .stats-row,
+      .eco-kpis,
+      .stat-row {
+        grid-template-columns: 1fr 1fr;
+      }
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+      .mission-flow {
+        grid-template-columns: 1fr;
+      }
+      .upload-zone {
+        min-height: 250px;
+        padding: 34px 18px;
+      }
+      #leaflet-map {
+        min-height: 420px;
+      }
+      .reduction-value {
+        font-size: 2.35rem;
+      }
+      .modal-overlay {
+        align-items: flex-start;
+        padding: 14px;
+      }
+      .modal-box {
+        width: 100%;
+        max-height: calc(100vh - 28px);
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .dash-top,
+      .stats-row,
+      .eco-kpis,
+      .stat-row {
+        grid-template-columns: 1fr;
+      }
+      .nav-tabs {
+        grid-template-columns: repeat(3, minmax(86px, 1fr));
+      }
+      .card,
+      .chart-box,
+      .kpi,
+      .stat-card {
+        padding: 18px;
+      }
+      .detection-item {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .conf-bar-wrap {
+        width: 100%;
+        margin: 0;
+      }
+    }
+    /* ─── Operational Marine Interface Redesign ─── */
+    :root {
+      --bg: #f4f1ea;
+      --surface: #ffffff;
+      --surface2: #f7f8f8;
+      --surface3: #eef3f5;
+      --border: #d7dde1;
+      --border-strong: #aebbc3;
+      --accent: #177e89;
+      --accent2: #2f6f88;
+      --green: #2f7d57;
+      --yellow: #b7791f;
+      --red: #b94a48;
+      --text: #172635;
+      --fg: #172635;
+      --muted: #657483;
+      --radius: 6px;
+      --shadow: none;
+    }
+    body {
+      font-family: Inter, "IBM Plex Sans", "Source Sans 3", "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      letter-spacing: 0;
+      line-height: 1.55;
+    }
+    nav {
+      background: #102536;
+      color: #f8fafc;
+      border-bottom: 4px solid #c7b991;
+      box-shadow: none;
+      backdrop-filter: none;
+      padding: 14px 28px;
+    }
+    .logo { font-size: 1.05rem; letter-spacing: 0; gap: 10px; }
+    .logo span { color: #d9e8ec; }
+    .logo-icon {
+      background: #d8caa5 !important;
+      color: #102536 !important;
+      border-radius: 4px;
+    }
+    .nav-badge {
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.22);
+      color: #d9e8ec;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .nav-tabs { gap: 2px; }
+    .nav-tab {
+      color: #c7d2da;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: .83rem;
+      font-weight: 600;
+      transition: background-color .12s, color .12s;
+    }
+    .nav-tab.active, .nav-tab:hover {
+      background: #1f3a4c;
+      color: #ffffff;
+      box-shadow: none;
+    }
+    main { max-width: 1480px; padding: 24px 24px 48px; }
+    .page-header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+    .page-header h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: #122536;
+    }
+    .page-header p {
+      max-width: 880px;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+    .card, .chart-box, .kpi, .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: none;
+    }
+    .card-title {
+      color: #34495a;
+      letter-spacing: .04em;
+      font-size: .76rem;
+      font-weight: 700;
+    }
+    .card-title::before {
+      background: #177e89;
+      height: 12px;
+      border-radius: 1px;
+    }
+    .btn, .btn-sm {
+      border-radius: 4px;
+      box-shadow: none;
+      font-weight: 700;
+    }
+    .btn-primary {
+      background: #177e89;
+      color: #ffffff;
+      box-shadow: none;
+    }
+    .btn-primary:hover {
+      filter: none;
+      transform: none;
+      background: #126b74;
+    }
+    .btn-outline, .btn-sm {
+      background: #ffffff;
+      border: 1px solid var(--border-strong);
+      color: #20384a;
+    }
+    .btn-outline:hover, .btn-sm:hover {
+      background: #eef3f5;
+      border-color: #177e89;
+      color: #102536;
+    }
+    .upload-zone {
+      background: #fbfcfc;
+      border: 1px dashed #9dacb6;
+      padding: 40px 24px;
+    }
+    .upload-zone:hover, .upload-zone.dragover {
+      border-color: #177e89;
+      background: #f1f6f7;
+    }
+    .upload-icon {
+      color: #2f6f88 !important;
+      font-size: 1.3rem !important;
+      font-weight: 800;
+      letter-spacing: .06em;
+    }
+    .severity-badge {
+      border-radius: 4px;
+      letter-spacing: .03em;
+      padding: 4px 9px;
+      font-size: .72rem;
+    }
+    .severity-High { background: #f5dddd; color: #8f2f2f; border-color: #deb9b9; }
+    .severity-Medium { background: #fbefd9; color: #8a5b13; border-color: #ead4aa; }
+    .severity-Low { background: #e4f1ea; color: #2f6b4d; border-color: #c8dfd2; }
+    .dash-top {
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+      gap: 12px;
+    }
+    .kpi { padding: 16px; }
+    .kpi-value, .stat-value, .stat-mini-value, .eco-kpi-val {
+      color: #15384f;
+      font-weight: 750;
+    }
+    .kpi-label, .stat-label, .stat-mini-label, .eco-kpi-lbl {
+      color: #5d6e7d;
+      font-weight: 600;
+    }
+    .charts-grid { gap: 14px; }
+    .reduction-banner {
+      background: #fffdf8;
+      border: 1px solid #d8caa5;
+      box-shadow: none;
+    }
+    .reduction-value { color: #2f7d57; font-weight: 750; }
+    .mission-flow { gap: 8px; }
+    .mission-step {
+      border: 1px solid #b8d5df;
+      box-shadow: inset 0 3px 0 rgba(23, 126, 137, 0.42);
+      color: #183246;
+    }
+    .mission-step:nth-child(1) {
+      background: linear-gradient(145deg, #ffffff 0%, #eef8fb 100%);
+    }
+    .mission-step:nth-child(2) {
+      background: linear-gradient(145deg, #f8fdff 0%, #dff3f9 100%);
+    }
+    .mission-step:nth-child(3) {
+      background: linear-gradient(145deg, #eef9fc 0%, #ccebf5 100%);
+    }
+    .mission-step:nth-child(4) {
+      background: linear-gradient(145deg, #e4f5fb 0%, #b8dfef 100%);
+    }
+    .mission-step:nth-child(5) {
+      background: linear-gradient(145deg, #d8eff8 0%, #9fcfe5 100%);
+      border-color: #91c4d8;
+    }
+    .mission-step::before {
+      background: linear-gradient(90deg, #21cfc1, #2f6f88);
+      opacity: 1;
+    }
+    .mission-step-num {
+      color: #00a99a;
+      font-weight: 800;
+    }
+    .mission-step-label {
+      color: #15384f;
+      font-weight: 800;
+    }
+    .mission-step-sub {
+      color: #315a72;
+    }
+    #map.active {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 330px;
+      gap: 14px;
+      align-items: start;
+    }
+    #map .page-header, #map .map-legend { grid-column: 1 / -1; }
+    #leaflet-map {
+      min-height: 640px;
+      height: calc(100vh - 235px);
+      border-radius: 0;
+      border: none;
+    }
+    .map-side-panel {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      min-height: 240px;
+      position: sticky;
+      top: 86px;
+    }
+    .map-detail-empty {
+      color: var(--muted);
+      font-size: .86rem;
+      line-height: 1.6;
+    }
+    .map-detail-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid #edf0f2;
+      padding: 8px 0;
+      font-size: .84rem;
+    }
+    .map-detail-row span:first-child { color: var(--muted); }
+    .map-detail-row span:last-child { font-weight: 650; text-align: right; }
+    .map-legend {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      margin-top: 0;
+    }
+    .sonar-grid { grid-template-columns: 360px minmax(0, 1fr); }
+    .sonar-param-group label {
+      color: #20384a;
+      font-weight: 650;
+    }
+    .sonar-param-group input[type=range] { background: #d6dee3; }
+    .sonar-param-group input[type=range]::-webkit-slider-thumb { background: #177e89; }
+    .preset-btn {
+      background: #ffffff;
+      color: #20384a;
+      border-color: #cbd5dc;
+      border-radius: 4px;
+    }
+    .preset-btn:hover, .preset-btn.active {
+      background: #eef6f7;
+      border-color: #177e89;
+      color: #102536;
+    }
+    .ppi-card, .ppi-wrap {
+      background: #ffffff;
+    }
+    .ppi-wrap {
+      background: #eef3f5;
+      min-height: 300px;
+    }
+    #ppiCanvas {
+      border-radius: 4px;
+      background: #f8fafb;
+    }
+    .ppi-mode-btn {
+      background: #ffffff;
+      color: #5d6e7d;
+    }
+    .ppi-mode-btn.active {
+      background: #eef6f7;
+      color: #102536;
+    }
+    .mission-view {
+      background: #f8fafb;
+      border-radius: 4px;
+    }
+    .decision-box, .eco-kpi, .stat-mini {
+      background: #f7f8f8;
+      border-color: #dbe1e5;
+      border-radius: 4px;
+    }
+    .sonar-disclaimer {
+      background: #fff8e8;
+      border-color: #d8caa5;
+      color: #6f541a;
+    }
+    table th {
+      background: #eef3f5;
+      color: #20384a;
+      font-weight: 700;
+    }
+    table td { color: #20384a; }
+    .modal-box {
+      background: #ffffff;
+      color: #172635;
+      border-radius: 6px;
+    }
+    .toast {
+      background: #ffffff;
+      color: #172635;
+      box-shadow: 0 8px 24px rgba(16,37,54,.12);
+    }
+    body::before, body::after, .upload-zone::after { display: none !important; content: none !important; }
+    .card:hover, .chart-box:hover, .kpi:hover, .stat-card:hover {
+      transform: none !important;
+      box-shadow: none !important;
+      border-color: var(--border);
+    }
+    .btn-primary, .logo-icon, .reduction-banner {
+      background-image: none !important;
+    }
+    @media (max-width: 980px) {
+      nav { align-items: flex-start; gap: 12px; }
+      .nav-tabs { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      #map.active, .sonar-grid, .mission-panel, .ops-section, .mission-status-strip { grid-template-columns: 1fr; }
+      .map-side-panel { position: static; }
+      #leaflet-map { min-height: 480px; height: 480px; }
+      .dash-top { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px) {
+      main { padding: 16px 12px 36px; }
+      nav { padding: 12px; }
+      .nav-tabs { grid-template-columns: 1fr; }
+      .dash-top, .stat-row, .eco-kpis { grid-template-columns: 1fr; }
+      .page-header h2 { font-size: 1.24rem; }
+      #leaflet-map { min-height: 380px; height: 380px; }
+      .status-cell { padding: 12px; }
+      .mission-flow { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -445,34 +1267,34 @@
 <nav>
   <div class="logo">
     <div class="logo-icon" style="font-size:13px; font-weight:800; color:#fff; letter-spacing:-0.5px;">PH</div>
-    Plastic <span>Hunter AI</span>
-    <span class="nav-badge">YOLOv8</span>
+    Plastic <span>Hunter</span>
+    <span class="nav-badge">Marine Operations Console</span>
   </div>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showSection('detect', this)">Detect</button>
-    <button class="nav-tab" onclick="showSection('map', this)">Map</button>
-    <button class="nav-tab" onclick="showSection('dashboard', this)">Dashboard</button>
-    <button class="nav-tab" onclick="showSection('history', this)">History</button>
-    <button class="nav-tab" onclick="showSection('sonar', this)">Sonar</button>
+    <button class="nav-tab active" onclick="showSection('dashboard', this)">Mission Overview</button>
+    <button class="nav-tab" onclick="showSection('map', this)">Monitoring Map</button>
+    <button class="nav-tab" onclick="showSection('detect', this)">Surface Inspection</button>
+    <button class="nav-tab" onclick="showSection('sonar', this)">Sonar Simulation</button>
+    <button class="nav-tab" onclick="showSection('history', this)">Survey Log</button>
   </div>
 </nav>
 
 <main>
 
   <!-- ═══ DETECT ═══ -->
-  <section id="detect" class="section active">
+  <section id="detect" class="section">
     <div class="page-header">
-      <h2>Marine Plastic Detection</h2>
-      <p>Upload an image of a marine or coastal environment to analyze it for plastic pollution.</p>
+      <h2>Surface Inspection</h2>
+      <p>Analyze coastal or marine imagery for visible plastic debris and generate an inspection report.</p>
     </div>
     <div class="detect-grid">
       <div>
         <div class="upload-zone card" id="uploadZone" onclick="document.getElementById('fileInput').click()">
-          <span class="upload-icon" style="font-size:2.5rem;">&#8679;</span>
-          <div class="upload-title">Drop image here or click to upload</div>
-          <div class="upload-sub">Supports JPG, PNG, WEBP · Max 20 MB</div>
+          <span class="upload-icon" style="font-size:2.5rem;">IMG</span>
+          <div class="upload-title">Upload inspection image</div>
+          <div class="upload-sub">JPG, PNG, or WEBP. Clear daylight imagery gives the most reliable result.</div>
           <button class="btn btn-primary" type="button" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
-            Choose Image
+            Select Image
           </button>
           <input type="file" id="fileInput" accept="image/*" onchange="onFileSelected(this)" />
         </div>
@@ -481,42 +1303,43 @@
 
         <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
           <button class="btn btn-primary" id="detectBtn" onclick="runDetection()" disabled>
-            Run Detection
+            Analyze Image
           </button>
-          <button class="btn btn-outline" onclick="clearAll()">✕ Clear</button>
+          <button class="btn btn-outline" onclick="clearAll()">Clear</button>
         </div>
       </div>
 
       <div class="result-panel">
         <div class="card" id="resultCard">
           <div class="empty-state" id="resultEmptyState">
-            <div class="big" style="font-size:2rem; color:var(--accent);">[ CV ]</div>
-            <div>Upload an image to begin computer-vision analysis</div>
+            <div class="big" style="font-size:1.15rem; color:var(--accent); font-weight:800; letter-spacing:.05em;">INSPECTION</div>
+            <div>Upload an image to begin surface inspection</div>
             <div style="margin-top:8px; font-size:0.8rem;">
-              Detects bottles, bags, nets, and other marine debris
+              Reports detector mode, confidence, severity, and detected debris items.
             </div>
           </div>
           <div id="resultContent" style="display:none">
-            <div class="card-title">Detection Results</div>
+            <div class="card-title">Inspection Report</div>
             <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
               <div id="severityBadge" class="severity-badge">—</div>
               <div id="detectionMode" style="font-size:0.78rem; color:var(--muted);"></div>
             </div>
+            <div id="qualityWarning" style="display:none; margin:-4px 0 14px; padding:10px 12px; border:1px solid rgba(245,158,11,0.35); background:rgba(245,158,11,0.10); color:#fbbf24; border-radius:var(--radius); font-size:0.82rem;"></div>
             <div class="stat-row" style="margin-bottom:16px;">
               <div class="stat-mini">
                 <div class="stat-mini-value" id="countVal">0</div>
-                <div class="stat-mini-label">Items Found</div>
+                <div class="stat-mini-label">Observed Items</div>
               </div>
               <div class="stat-mini">
                 <div class="stat-mini-value" id="confVal">0%</div>
-                <div class="stat-mini-label">Avg Confidence</div>
+                <div class="stat-mini-label">Mean Confidence</div>
               </div>
               <div class="stat-mini">
                 <div class="stat-mini-value" id="locationVal" style="font-size:0.9rem;">—</div>
                 <div class="stat-mini-label">Location</div>
               </div>
             </div>
-            <div class="card-title">Detected Items</div>
+            <div class="card-title">Detected Debris</div>
             <div class="detection-list" id="detectionList"></div>
           </div>
         </div>
@@ -527,12 +1350,16 @@
   <!-- ═══ MAP ═══ -->
   <section id="map" class="section">
     <div class="page-header">
-      <h2>Pollution Map</h2>
-      <p>Interactive map of all logged plastic detection events. Click a marker for details.</p>
+      <h2>Monitoring Map</h2>
+      <p>Geospatial view of logged inspection events with severity, confidence, and source image details.</p>
     </div>
     <div class="card" style="padding:0; overflow:hidden;">
       <div id="leaflet-map"></div>
     </div>
+    <aside class="map-side-panel" id="mapDetailPanel">
+      <div class="card-title">Selected Detection</div>
+      <div class="map-detail-empty">Select a marker to review inspection details.</div>
+    </aside>
     <div class="map-legend">
       <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>High severity (>8 items)</div>
       <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>Medium severity (4–8 items)</div>
@@ -541,15 +1368,33 @@
   </section>
 
   <!-- ═══ DASHBOARD ═══ -->
-  <section id="dashboard" class="section">
+  <section id="dashboard" class="section active">
     <div class="page-header">
-      <h2>Mission Control Dashboard</h2>
-      <p>Observed detections, research-backed CV validation, and reproducible eco-sonar sustainability KPIs.</p>
+      <h2>Mission Overview</h2>
+      <p>Operational summary of inspections, monitoring sites, sonar sustainability metrics, and final evidence status.</p>
+    </div>
+    <div class="mission-status-strip">
+      <div class="status-cell">
+        <strong id="missionStatusText">Monitoring Active</strong>
+        <span id="missionStatusSub">Surface inspection, map logging, sonar simulation, and evidence reporting are available.</span>
+      </div>
+      <div class="status-cell">
+        <strong id="missionUpdatedText">Live Data</strong>
+        <span>Mission database and charts refresh from the local FastAPI service.</span>
+      </div>
+      <div class="status-cell warning">
+        <strong>Simulation Notice</strong>
+        <span>Sonar results are mathematical assumptions, not field measurements.</span>
+      </div>
+      <div class="status-cell">
+        <strong>Evidence Ready</strong>
+        <span>Final report and method disclosure remain available for review.</span>
+      </div>
     </div>
     <div class="dash-top">
       <div class="kpi">
         <div class="kpi-value" id="kpiScans">—</div>
-        <div class="kpi-label">Total Scans</div>
+        <div class="kpi-label">Surface Inspections</div>
       </div>
       <div class="kpi">
         <div class="kpi-value" id="kpiPlastics">—</div>
@@ -557,7 +1402,7 @@
       </div>
       <div class="kpi">
         <div class="kpi-value" id="kpiConf">—</div>
-        <div class="kpi-label">Average Demo Confidence</div>
+        <div class="kpi-label">Mean Detection Confidence</div>
       </div>
       <div class="kpi">
         <div class="kpi-value" id="kpiHigh" style="color:var(--red)">—</div>
@@ -569,48 +1414,42 @@
       </div>
     </div>
 
-    <div class="card" style="margin-bottom:20px;">
-      <div class="card-title">Research-Backed CV Validation</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;font-size:0.84rem;">
-        <div><span style="color:var(--muted);">Dataset:</span> Trash-ICRA19</div>
-        <div><span style="color:var(--muted);">Models:</span> YOLOv8s, Faster R-CNN, MobileNet SSD</div>
-        <div><span style="color:var(--muted);">Best model:</span> YOLOv8s</div>
-        <div><span style="color:var(--muted);">mAP@0.5:</span> 97.77%</div>
-        <div><span style="color:var(--muted);">FPS:</span> 122.10</div>
-        <div><span style="color:var(--muted);">Cross-domain test:</span> River Floating Trash Dataset</div>
-        <div><span style="color:var(--muted);">Best cross-domain model:</span> Faster R-CNN, 32.22% mAP@0.5</div>
+    <div class="ops-section">
+      <div class="card">
+        <div class="card-title">Operational Workflow</div>
+        <div class="mission-flow">
+          <div class="mission-step"><div class="mission-step-num">01</div><div class="mission-step-label">Inspect</div><div class="mission-step-sub">Surface imagery</div></div>
+          <div class="mission-step"><div class="mission-step-num">02</div><div class="mission-step-label">Log</div><div class="mission-step-sub">Site and severity</div></div>
+          <div class="mission-step"><div class="mission-step-num">03</div><div class="mission-step-label">Map</div><div class="mission-step-sub">Coastal activity</div></div>
+          <div class="mission-step"><div class="mission-step-num">04</div><div class="mission-step-label">Simulate</div><div class="mission-step-sub">Sonar trade-off</div></div>
+          <div class="mission-step"><div class="mission-step-num">05</div><div class="mission-step-label">Report</div><div class="mission-step-sub">Evidence brief</div></div>
+        </div>
       </div>
-    </div>
-
-    <div class="card" style="margin-bottom:20px;">
-      <div class="card-title">Monitoring Mission Flow</div>
-      <div class="mission-flow">
-        <div class="mission-step"><div class="mission-step-num">01</div><div class="mission-step-label">Mission Started</div><div class="mission-step-sub">Scenario and site context</div></div>
-        <div class="mission-step"><div class="mission-step-num">02</div><div class="mission-step-label">Passive Sonar</div><div class="mission-step-sub">Low-impact acoustic listening</div></div>
-        <div class="mission-step"><div class="mission-step-num">03</div><div class="mission-step-label">Signal Analysis</div><div class="mission-step-sub">SNR and P(detect)</div></div>
-        <div class="mission-step"><div class="mission-step-num">04</div><div class="mission-step-label">Hybrid Decision</div><div class="mission-step-sub">Reduced-duty active mode</div></div>
-        <div class="mission-step"><div class="mission-step-num">05</div><div class="mission-step-label">CV Verification</div><div class="mission-step-sub">Surface image evidence</div></div>
-        <div class="mission-step"><div class="mission-step-num">06</div><div class="mission-step-label">Database</div><div class="mission-step-sub">SQLite mission log</div></div>
-        <div class="mission-step"><div class="mission-step-num">07</div><div class="mission-step-label">Dashboard</div><div class="mission-step-sub">KPIs and trends</div></div>
-        <div class="mission-step"><div class="mission-step-num">08</div><div class="mission-step-label">Map</div><div class="mission-step-sub">Geospatial hotspot view</div></div>
-        <div class="mission-step"><div class="mission-step-num">09</div><div class="mission-step-label">Evidence Generated</div><div class="mission-step-sub">Judge-ready summary</div></div>
+      <div class="card">
+        <div class="card-title">Validation Reference</div>
+        <div class="brief-list">
+          <div><span>Dataset</span><span>Trash-ICRA19</span></div>
+          <div><span>Model family</span><span>YOLOv8s, Faster R-CNN, MobileNet SSD</span></div>
+          <div><span>Reference result</span><span>97.77% mAP@0.5, 122.10 FPS</span></div>
+          <div><span>Cross-domain check</span><span>River Floating Trash Dataset</span></div>
+        </div>
       </div>
     </div>
 
     <div class="charts-grid">
       <div class="chart-box">
-        <div class="card-title">Detections Per Day</div>
+        <div class="card-title">Inspection Events by Day</div>
         <canvas id="barChart"></canvas>
       </div>
       <div class="chart-box">
-        <div class="card-title">Confidence Distribution</div>
+        <div class="card-title">Confidence Bands</div>
         <canvas id="pieChart"></canvas>
       </div>
     </div>
 
     <div class="charts-grid" style="margin-top:12px;">
       <div class="chart-box" style="grid-column: 1 / -1;">
-        <div class="card-title">Estimated Plastic Type Mix</div>
+        <div class="card-title">Estimated Debris Type Mix</div>
         <canvas id="typesChart" height="90"></canvas>
         <div id="typeDistNote" style="font-size:0.72rem;color:var(--muted);margin-top:10px;"></div>
       </div>
@@ -621,8 +1460,8 @@
       <div class="reduction-left">
         <h3>Estimated Manual-Survey Baseline</h3>
         <p>
-          This is a transparent demo assumption for detection-capacity comparison, not a measured cleanup or environmental-impact result.
-          The observed CV-assisted count is compared against an estimated manual-survey baseline.
+          This is a transparent planning assumption for detection-capacity comparison, not a measured cleanup or environmental-impact result.
+          The observed inspection count is compared against an estimated manual-survey baseline.
         </p>
         <div id="baselineMethodText" style="font-size:0.74rem;color:var(--muted);margin-top:8px;"></div>
         <div class="compare-bar" id="compareBar" style="margin-top:16px; min-width: 300px;"></div>
@@ -636,10 +1475,10 @@
     <!-- Eco-Sonar Sustainability KPIs -->
     <div class="card" style="margin-top:16px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-        <div class="card-title" style="margin-bottom:0;">Eco-Sonar Sustainability Impact</div>
+        <div class="card-title" style="margin-bottom:0;">Sonar Sustainability Status</div>
         <div style="display:flex;gap:8px;">
-          <button class="btn-sm" onclick="showEvidenceModal()">Evidence Sheet</button>
-          <button class="btn-sm" onclick="showDisclosureModal()">AI / External Resources</button>
+          <button class="btn-sm" onclick="showEvidenceModal()">Final Evidence Report</button>
+          <button class="btn-sm" onclick="showDisclosureModal()">Method Disclosure</button>
         </div>
       </div>
       <div class="eco-kpis">
@@ -680,11 +1519,11 @@
   <!-- ═══ HISTORY ═══ -->
   <section id="history" class="section">
     <div class="page-header">
-      <h2>Detection History</h2>
-      <p>All past detections stored in the database.</p>
+      <h2>Survey Log</h2>
+      <p>Chronological record of inspections stored in the mission database.</p>
     </div>
     <div class="card">
-      <div class="history-table-wrap">
+      <div class="history-table-wrap compact-table">
         <table>
           <thead>
             <tr>
@@ -709,14 +1548,21 @@
   <!-- ═══ SONAR ═══ -->
   <section id="sonar" class="section">
     <div class="page-header">
-      <h2>Eco-Sonar Pipeline</h2>
+      <h2>Sonar Simulation</h2>
       <p>Active / passive / hybrid sonar for subsurface marine plastic debris detection — eco-adaptive duty-cycle management quantifiably reduces acoustic disturbance while retaining detection coverage.</p>
     </div>
 
     <div class="sonar-grid">
       <!-- Parameters panel -->
       <div class="card">
-        <div class="card-title" style="margin-bottom:16px;">Scenario Parameters</div>
+        <div class="card-title" style="margin-bottom:16px;">Simulation Inputs</div>
+        <div class="preset-grid" id="sonarPresetGrid">
+          <button class="preset-btn" data-preset="harbor" onclick="applySonarPreset('harbor')">Harbor Cleanup</button>
+          <button class="preset-btn" data-preset="coastal" onclick="applySonarPreset('coastal')">Coastal Monitoring</button>
+          <button class="preset-btn" data-preset="ghost" onclick="applySonarPreset('ghost')">Ghost Net Search</button>
+          <button class="preset-btn" data-preset="noise" onclick="applySonarPreset('noise')">High Noise Sea</button>
+          <button class="preset-btn" data-preset="lowpower" onclick="applySonarPreset('lowpower')">Low Power Survey</button>
+        </div>
         <div class="sonar-param-group">
           <label>Source Level (SL) <span class="param-unit" id="slVal">200 dB re 1μPa@1m</span></label>
           <input type="range" id="slInput" min="160" max="220" value="200" step="1"
@@ -771,8 +1617,11 @@
           </label>
         </div>
         <button class="btn btn-primary" id="sonarRunBtn" onclick="runSonar()" style="width:100%;margin-top:8px;">
-          Run Scenario
+          Start Sonar Simulation
         </button>
+        <div class="sonar-disclaimer">
+          This is an executable sonar simulation based on mathematical assumptions, not field hardware measurements.
+        </div>
       </div>
 
       <!-- PPI display -->
@@ -784,7 +1633,7 @@
         </div>
         <div class="ppi-wrap">
           <canvas id="ppiCanvas" width="320" height="320"></canvas>
-          <div class="ppi-empty-state" id="ppiEmptyState">Run a scenario to view<br>the sonar PPI display</div>
+          <div class="ppi-empty-state" id="ppiEmptyState">Start a simulation to view<br>sonar target geometry</div>
         </div>
         <div class="ppi-legend" id="ppiLegend" style="display:none">
           <span><span class="ppi-legend-dot" style="background:#ef4444"></span>Ghost Net</span>
@@ -792,6 +1641,46 @@
           <span><span class="ppi-legend-dot" style="background:#f59e0b"></span>Submerged Bag</span>
           <span><span class="ppi-legend-dot" style="background:#84cc16"></span>Foam Block</span>
           <span><span class="ppi-legend-dot" style="background:#06b6d4"></span>Micro-Plastic</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mission-panel" id="sonarMissionPanel" style="display:none">
+      <div class="card">
+        <div class="card-title">Sonar Beam and Mission View</div>
+        <svg id="missionView" class="mission-view" viewBox="0 0 760 360" role="img" aria-label="Simulated sonar mission view"></svg>
+      </div>
+      <div class="card">
+        <div class="card-title">Baseline vs Eco-Adaptive Decision</div>
+        <div class="decision-grid">
+          <div class="decision-box">
+            <div class="decision-label">Primary Technical KPI</div>
+            <div class="decision-value" id="primaryTechKpi">Detection Coverage Retained</div>
+          </div>
+          <div class="decision-box">
+            <div class="decision-label">Primary Sustainability KPI</div>
+            <div class="decision-value" id="primarySustainKpi">Acoustic Exposure Reduction</div>
+          </div>
+          <div class="decision-box">
+            <div class="decision-label">Conventional Detects</div>
+            <div class="decision-value" id="convDetectSummary">-</div>
+          </div>
+          <div class="decision-box">
+            <div class="decision-label">Eco-Adaptive Detects</div>
+            <div class="decision-value" id="ecoDetectSummary">-</div>
+          </div>
+          <div class="decision-box">
+            <div class="decision-label">What Was Saved</div>
+            <div class="decision-value" id="savedSummary">-</div>
+          </div>
+          <div class="decision-box">
+            <div class="decision-label">What Was Traded Off</div>
+            <div class="decision-value" id="tradeoffSummary">-</div>
+          </div>
+        </div>
+        <div class="copy-row">
+          <span style="color:var(--muted);font-size:.76rem;">Judge-ready sonar evidence summary</span>
+          <button class="btn-sm" onclick="copySonarEvidence()">Copy Evidence Summary</button>
         </div>
       </div>
     </div>
@@ -810,7 +1699,7 @@
           <div class="stat-sub" id="kpiDcSub"></div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Eco Detection Retention</div>
+          <div class="stat-label">Detection Coverage Retained</div>
           <div class="stat-value" id="kpiRet">—</div>
           <div class="stat-sub" id="kpiRetSub"></div>
         </div>
@@ -835,13 +1724,14 @@
         </div>
       </div>
       <div class="card" style="margin-top:16px;">
-        <div class="card-title" id="targetTableTitle">Target Detection Results</div>
-        <div class="history-table-wrap">
+        <div class="card-title" id="targetTableTitle">Target Detection Analysis</div>
+        <div class="history-table-wrap compact-table">
           <table>
             <thead>
               <tr>
                 <th>#</th><th>Debris Type</th><th>Range</th>
-                <th>Target Strength</th><th>SNR</th><th>P(detect)</th><th>Status</th>
+                <th>Depth</th><th>Target Strength</th><th>SNR</th><th>P(detect)</th>
+                <th>Echo Time</th><th>Est. Range</th><th>Status</th><th>Explanation</th>
               </tr>
             </thead>
             <tbody id="sonarTargetBody"></tbody>
@@ -857,8 +1747,8 @@
 <div class="modal-overlay" id="evidenceModal" onclick="closeModal('evidenceModal')">
   <div class="modal-box" onclick="event.stopPropagation()">
     <div class="modal-hdr">
-      <div class="card-title" style="margin-bottom:0;">Final Evidence Sheet</div>
-      <button class="modal-close" onclick="closeModal('evidenceModal')">✕</button>
+      <div class="card-title" style="margin-bottom:0;">Final Evidence Report</div>
+      <button class="modal-close" onclick="closeModal('evidenceModal')" aria-label="Close panel">Close</button>
     </div>
     <div id="evidenceContent" style="font-size:0.83rem;line-height:1.7;">Loading…</div>
   </div>
@@ -869,7 +1759,7 @@
   <div class="modal-box" onclick="event.stopPropagation()">
     <div class="modal-hdr">
       <div class="card-title" style="margin-bottom:0;">AI / External Resources Disclosure</div>
-      <button class="modal-close" onclick="closeModal('disclosureModal')">✕</button>
+      <button class="modal-close" onclick="closeModal('disclosureModal')" aria-label="Close panel">Close</button>
     </div>
     <div id="disclosureContent" style="font-size:0.83rem;line-height:1.7;">Loading…</div>
   </div>
@@ -963,7 +1853,7 @@
       showToast('Error: ' + e.message, 'error');
     } finally {
       btn.disabled = false;
-      btn.innerHTML = 'Run Detection';
+      btn.innerHTML = 'Analyze Image';
     }
   }
 
@@ -975,8 +1865,22 @@
     badge.textContent = data.severity;
     badge.className = `severity-badge severity-${data.severity}`;
 
+    const detectorMode = data.detector_mode || data.detection_mode;
+    const isYolo = detectorMode === 'yolo';
     document.getElementById('detectionMode').textContent =
-      data.detection_mode === 'yolov8' ? 'YOLOv8 detection' : 'Lightweight CV demo interface';
+      isYolo ? 'YOLOv8 Active' : 'Lightweight Field Mode';
+
+    const warning = document.getElementById('qualityWarning');
+    if (isYolo) {
+      warning.textContent = 'YOLOv8 model active.';
+      warning.style.display = 'block';
+    } else {
+      const lightweightMsg = 'YOLO weights not found. Running lightweight field detector.';
+      warning.textContent = data.warning && data.warning !== lightweightMsg
+        ? `${lightweightMsg} ${data.warning}`
+        : lightweightMsg;
+      warning.style.display = 'block';
+    }
 
     document.getElementById('countVal').textContent = data.plastic_count;
     document.getElementById('confVal').textContent = Math.round(data.avg_confidence * 100) + '%';
@@ -1064,14 +1968,16 @@
   // ─── Map ───
   let leafletMap = null;
   let mapInitialized = false;
+  let markerLayer = null;
 
   async function initMap() {
     if (!mapInitialized) {
       leafletMap = L.map('leaflet-map').setView([20, 15], 2);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
         maxZoom: 19
       }).addTo(leafletMap);
+      markerLayer = L.layerGroup().addTo(leafletMap);
       mapInitialized = true;
     }
 
@@ -1079,15 +1985,16 @@
       const res = await fetch('/results');
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const rows = await res.json();
+      if (markerLayer) markerLayer.clearLayers();
 
       rows.forEach(row => {
-        const color = row.severity === 'High' ? '#ef4444'
-                    : row.severity === 'Medium' ? '#f59e0b'
-                    : '#10b981';
+        const color = row.severity === 'High' ? '#b94a48'
+                    : row.severity === 'Medium' ? '#b7791f'
+                    : '#2f7d57';
 
         const marker = L.circleMarker([row.latitude, row.longitude], {
           radius: Math.min(20, 6 + row.plastic_count * 1.2),
-          color, fillColor: color, fillOpacity: 0.75, weight: 2
+          color, fillColor: color, fillOpacity: 0.68, weight: 2
         });
 
         marker.bindPopup(`
@@ -1101,7 +2008,8 @@
             <div style="font-size:0.82rem; color:#64748b; margin-top:4px; word-break:break-all;">${row.image_name}</div>
           </div>
         `);
-        marker.addTo(leafletMap);
+        marker.on('click', () => renderMapDetail(row));
+        marker.addTo(markerLayer || leafletMap);
       });
     } catch(e) {
       console.error('Map load error', e);
@@ -1109,6 +2017,24 @@
   }
 
   // ─── Dashboard ───
+  function renderMapDetail(row) {
+    const panel = document.getElementById('mapDetailPanel');
+    if (!panel) return;
+    panel.innerHTML = `
+      <div class="card-title">Selected Detection</div>
+      <div style="margin-bottom:12px;">
+        <span class="severity-badge severity-${row.severity}">${row.severity}</span>
+      </div>
+      <div class="map-detail-row"><span>Inspection ID</span><span>${row.id}</span></div>
+      <div class="map-detail-row"><span>Timestamp</span><span>${row.timestamp}</span></div>
+      <div class="map-detail-row"><span>Observed Items</span><span>${row.plastic_count}</span></div>
+      <div class="map-detail-row"><span>Confidence</span><span>${Math.round(row.avg_confidence * 100)}%</span></div>
+      <div class="map-detail-row"><span>Latitude</span><span>${row.latitude?.toFixed(4)}</span></div>
+      <div class="map-detail-row"><span>Longitude</span><span>${row.longitude?.toFixed(4)}</span></div>
+      <div class="map-detail-row"><span>Image</span><span style="word-break:break-word;">${row.image_name}</span></div>
+    `;
+  }
+
   let barChartInst = null, pieChartInst = null, typesChartInst = null;
 
   async function loadDashboard() {
@@ -1122,6 +2048,12 @@
       document.getElementById('kpiConf').textContent = Math.round(s.avg_confidence * 100) + '%';
       document.getElementById('kpiHigh').textContent = s.severity_breakdown.High || 0;
       document.getElementById('kpiSites').textContent = s.active_sites || 0;
+      document.getElementById('missionStatusText').textContent =
+        (s.severity_breakdown.High || 0) > 0 ? 'Monitoring Active - High Priority Sites Present' : 'Monitoring Active';
+      document.getElementById('missionStatusSub').textContent =
+        `${s.total_scans} inspections logged across ${s.active_sites || 0} monitored sites.`;
+      document.getElementById('missionUpdatedText').textContent =
+        `${s.total_plastics_detected} observed items`;
 
       // Bar chart
       const barCtx = document.getElementById('barChart').getContext('2d');
@@ -1133,18 +2065,18 @@
           datasets: [{
             label: 'Plastics Detected',
             data: s.detections_per_day.map(d => d.count),
-            backgroundColor: 'rgba(6,182,212,0.7)',
-            borderColor: '#06b6d4',
+            backgroundColor: 'rgba(47,111,136,0.72)',
+            borderColor: '#2f6f88',
             borderWidth: 1,
             borderRadius: 5
           }]
         },
         options: {
           responsive: true,
-          plugins: { legend: { labels: { color: '#e2e8f0' } } },
+          plugins: { legend: { labels: { color: '#34495a' } } },
           scales: {
-            x: { ticks: { color: '#64748b' }, grid: { color: '#1e2d45' } },
-            y: { ticks: { color: '#64748b' }, grid: { color: '#1e2d45' }, beginAtZero: true }
+            x: { ticks: { color: '#657483' }, grid: { color: '#e5eaee' } },
+            y: { ticks: { color: '#657483' }, grid: { color: '#e5eaee' }, beginAtZero: true }
           }
         }
       });
@@ -1158,15 +2090,15 @@
           labels: s.confidence_distribution.map(d => d.label),
           datasets: [{
             data: s.confidence_distribution.map(d => d.value),
-            backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
-            borderColor: '#111827',
+            backgroundColor: ['#2f7d57', '#b7791f', '#b94a48'],
+            borderColor: '#ffffff',
             borderWidth: 3
           }]
         },
         options: {
           responsive: true,
           plugins: {
-            legend: { labels: { color: '#e2e8f0' }, position: 'bottom' }
+            legend: { labels: { color: '#34495a' }, position: 'bottom' }
           }
         }
       });
@@ -1183,18 +2115,18 @@
               label: 'Estimated Count',
               data: s.plastic_type_distribution.map(d => d.count),
               backgroundColor: [
-                '#06b6d4','#22c55e','#f59e0b','#ef4444','#8b5cf6',
-                '#ec4899','#14b8a6','#f97316','#6366f1','#84cc16',
+                '#2f6f88','#2f7d57','#b7791f','#b94a48','#6f7f8f',
+                '#8c6f5a','#177e89','#9c7a3a','#4d6578','#7b8c55',
               ],
-              borderColor: '#111827', borderWidth: 1, borderRadius: 4,
+              borderColor: '#ffffff', borderWidth: 1, borderRadius: 4,
             }]
           },
           options: {
             responsive: true, indexAxis: 'y',
             plugins: { legend: { display: false } },
             scales: {
-              x: { ticks: { color: '#64748b' }, grid: { color: '#1e2d45' }, beginAtZero: true },
-              y: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: '#1e2d45' } },
+              x: { ticks: { color: '#657483' }, grid: { color: '#e5eaee' }, beginAtZero: true },
+              y: { ticks: { color: '#657483', font: { size: 11 } }, grid: { color: '#e5eaee' } },
             }
           }
         });
@@ -1214,16 +2146,16 @@
         <div class="compare-row">
           <span class="compare-name" style="color:var(--muted)">Estimated Manual</span>
           <div class="compare-track">
-            <div class="compare-fill" style="width:${basePct}%; background:#ef4444;"></div>
+            <div class="compare-fill" style="width:${basePct}%; background:#b94a48;"></div>
           </div>
-          <span class="compare-num" style="color:#ef4444">${s.baseline_plastics}</span>
+          <span class="compare-num" style="color:#8f2f2f">${s.baseline_plastics}</span>
         </div>
         <div class="compare-row">
-          <span class="compare-name" style="color:var(--muted)">Observed CV</span>
+          <span class="compare-name" style="color:var(--muted)">Observed Inspection</span>
           <div class="compare-track">
-            <div class="compare-fill" style="width:${optPct}%; background:#10b981;"></div>
+            <div class="compare-fill" style="width:${optPct}%; background:#2f7d57;"></div>
           </div>
-          <span class="compare-num" style="color:#10b981">${s.optimized_plastics}</span>
+          <span class="compare-num" style="color:#2f6b4d">${s.optimized_plastics}</span>
         </div>
       `;
 
@@ -1268,10 +2200,42 @@
   let _ppiMode = 'conventional';
   let _ppiRaf = null;
   let _ppiAngle = 0;
+  let _ppiLastTs = null;
+  let _sonarScenarioName = 'Custom Scenario';
+
+  const SONAR_PRESETS = {
+    harbor:   { name: 'Harbor Cleanup',     sl: 198, freq: 12, pulse: 80,  interval: 4,  sea: 2, depth: 20,  mission: 30 },
+    coastal:  { name: 'Coastal Monitoring', sl: 200, freq: 10, pulse: 100, interval: 6,  sea: 3, depth: 50,  mission: 120 },
+    ghost:    { name: 'Ghost Net Search',   sl: 205, freq: 8,  pulse: 160, interval: 5,  sea: 3, depth: 100, mission: 60 },
+    noise:    { name: 'High Noise Sea',     sl: 210, freq: 9,  pulse: 180, interval: 4,  sea: 5, depth: 50,  mission: 60 },
+    lowpower: { name: 'Low Power Survey',   sl: 185, freq: 18, pulse: 60,  interval: 12, sea: 2, depth: 50,  mission: 120 },
+  };
+
+  function setInputAndLabel(inputId, value) {
+    const el = document.getElementById(inputId);
+    el.value = value;
+    el.dispatchEvent(new Event('input'));
+  }
+
+  function applySonarPreset(key) {
+    const p = SONAR_PRESETS[key];
+    if (!p) return;
+    _sonarScenarioName = p.name;
+    setInputAndLabel('slInput', p.sl);
+    setInputAndLabel('freqInput', p.freq);
+    setInputAndLabel('pulseInput', p.pulse);
+    setInputAndLabel('intervalInput', p.interval);
+    document.getElementById('seaStateInput').value = String(p.sea);
+    document.getElementById('depthInput').value = String(p.depth);
+    document.getElementById('missionInput').value = String(p.mission);
+    document.querySelectorAll('.preset-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.preset === key));
+    runSonar();
+  }
 
   async function runSonar() {
     const btn = document.getElementById('sonarRunBtn');
-    btn.disabled = true; btn.textContent = 'Running…';
+    btn.disabled = true; btn.textContent = 'Running...';
     try {
       const fd = new FormData();
       fd.append('source_level',    document.getElementById('slInput').value);
@@ -1289,34 +2253,63 @@
 
       document.getElementById('sonarKpis').style.display = '';
       document.getElementById('sonarCharts').style.display = '';
+      document.getElementById('sonarMissionPanel').style.display = '';
       document.getElementById('ppiLegend').style.display = '';
       document.getElementById('ppiEmptyState').style.display = 'none';
 
       renderSonarKPIs();
       setPpiMode(_ppiMode);
+      renderMissionView();
+      renderDecisionSummary();
       renderSweepChart();
       renderDcChart();
       renderTargetTable();
 
-      if (_ppiRaf) cancelAnimationFrame(_ppiRaf);
-      _ppiAngle = 0;
-      animatePPI();
+      _ppiAngle = -0.65;
+      updatePpiAnimation();
       showToast('Sonar scenario complete.', 'success');
     } catch(e) {
       showToast('Simulation failed: ' + e.message, 'error');
     }
-    btn.disabled = false; btn.textContent = 'Run Scenario';
+    btn.disabled = false; btn.textContent = 'Start Sonar Simulation';
   }
 
   function setPpiMode(mode) {
     _ppiMode = mode;
     document.querySelectorAll('.ppi-mode-btn').forEach(b =>
       b.classList.toggle('active', b.dataset.mode === mode));
-    if (_sonarData) { drawPPI(); renderTargetTable(); }
+    if (_sonarData) {
+      drawPPI();
+      renderMissionView();
+      renderTargetTable();
+      updatePpiAnimation();
+    }
   }
 
-  function animatePPI() {
-    _ppiAngle = (_ppiAngle + 0.018) % (Math.PI * 2);
+  function updatePpiAnimation() {
+    if (_ppiRaf) {
+      cancelAnimationFrame(_ppiRaf);
+      _ppiRaf = null;
+    }
+    _ppiLastTs = null;
+    if (_sonarData && _ppiMode !== 'passive') {
+      _ppiRaf = requestAnimationFrame(animatePPI);
+    } else {
+      drawPPI();
+    }
+  }
+
+  function animatePPI(ts) {
+    if (!_sonarData || _ppiMode === 'passive') {
+      _ppiRaf = null;
+      drawPPI();
+      return;
+    }
+    if (_ppiLastTs === null) _ppiLastTs = ts;
+    const elapsed = ts - _ppiLastTs;
+    _ppiLastTs = ts;
+    const rotationMs = 7000;
+    _ppiAngle = (_ppiAngle + (Math.PI * 2 * elapsed / rotationMs)) % (Math.PI * 2);
     drawPPI();
     _ppiRaf = requestAnimationFrame(animatePPI);
   }
@@ -1330,13 +2323,13 @@
     const R = Math.min(cx, cy) - 14;
     const maxRng = 5000;
 
-    ctx.fillStyle = '#050a12';
+    ctx.fillStyle = '#f8fafb';
     ctx.fillRect(0, 0, W, H);
 
     // Phosphor bloom
     const bloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
-    bloom.addColorStop(0, 'rgba(6,182,212,0.07)');
-    bloom.addColorStop(1, 'rgba(6,182,212,0)');
+    bloom.addColorStop(0, 'rgba(47,111,136,0.05)');
+    bloom.addColorStop(1, 'rgba(47,111,136,0)');
     ctx.fillStyle = bloom;
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fill();
 
@@ -1344,13 +2337,13 @@
     [1000, 2000, 3000, 4000, 5000].forEach(rm => {
       const pr = (rm / maxRng) * R;
       ctx.beginPath(); ctx.arc(cx, cy, pr, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(6,182,212,0.13)'; ctx.lineWidth = 1; ctx.stroke();
-      ctx.fillStyle = 'rgba(100,116,139,0.55)'; ctx.font = '9px monospace';
+      ctx.strokeStyle = 'rgba(47,111,136,0.20)'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = '#657483'; ctx.font = '9px monospace';
       ctx.fillText(`${rm / 1000}km`, cx + pr + 3, cy + 4);
     });
 
     // Cross-hairs
-    ctx.strokeStyle = 'rgba(6,182,212,0.07)'; ctx.setLineDash([3, 5]);
+    ctx.strokeStyle = 'rgba(47,111,136,0.16)'; ctx.setLineDash([3, 5]);
     ctx.beginPath();
     ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy);
     ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R);
@@ -1358,23 +2351,17 @@
 
     // Outer ring
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(6,182,212,0.3)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.strokeStyle = 'rgba(47,111,136,0.45)'; ctx.lineWidth = 1.5; ctx.stroke();
 
-    // Sweep phosphor trail
-    for (let i = 0; i < 32; i++) {
-      const a = _ppiAngle - i * 0.045;
-      const alpha = (1 - i / 32) * 0.18;
+    // Slow active-scan sweep line. Hidden in passive mode because passive sonar is listening.
+    if (_ppiMode !== 'passive') {
       ctx.beginPath();
       ctx.moveTo(cx, cy);
-      ctx.arc(cx, cy, R, a - 0.046, a, false);
-      ctx.closePath();
-      ctx.fillStyle = `rgba(6,182,212,${alpha})`;
-      ctx.fill();
+      ctx.lineTo(cx + Math.cos(_ppiAngle) * R, cy + Math.sin(_ppiAngle) * R);
+      ctx.strokeStyle = 'rgba(47,111,136,0.32)';
+      ctx.lineWidth = 1.25;
+      ctx.stroke();
     }
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.lineTo(cx + Math.cos(_ppiAngle) * R, cy + Math.sin(_ppiAngle) * R);
-    ctx.strokeStyle = 'rgba(6,182,212,0.75)'; ctx.lineWidth = 1.5; ctx.stroke();
 
     // Targets
     const modeData = _sonarData[_ppiMode];
@@ -1384,23 +2371,118 @@
       const tx  = cx + Math.cos(ang) * pr;
       const ty  = cy + Math.sin(ang) * pr;
       if (t.detected) {
-        const glow = ctx.createRadialGradient(tx, ty, 0, tx, ty, 16);
-        glow.addColorStop(0, t.color + 'BB'); glow.addColorStop(1, t.color + '00');
-        ctx.fillStyle = glow;
-        ctx.beginPath(); ctx.arc(tx, ty, 16, 0, Math.PI * 2); ctx.fill();
         ctx.beginPath(); ctx.arc(tx, ty, 4.5, 0, Math.PI * 2);
-        ctx.fillStyle = t.color; ctx.fill();
+        ctx.fillStyle = '#2f7d57'; ctx.fill();
       } else {
         ctx.beginPath(); ctx.arc(tx, ty, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(100,116,139,0.3)'; ctx.fill();
+        ctx.fillStyle = 'rgba(101,116,131,0.45)'; ctx.fill();
       }
     });
 
     // Ownship marker
     ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI * 2);
-    ctx.fillStyle = '#06b6d4'; ctx.fill();
+    ctx.fillStyle = '#2f6f88'; ctx.fill();
     ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI * 2);
     ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+  }
+
+  function escHtml(v) {
+    return String(v ?? '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  function renderMissionView() {
+    if (!_sonarData) return;
+    const svg = document.getElementById('missionView');
+    const modeData = _sonarData[_ppiMode] || _sonarData.conventional;
+    const targets = modeData.results || [];
+    const maxRange = Math.max(1000, ...targets.map(t => t.range_m || 0), _sonarData.metrics?.conv_max_range_m || 0);
+    const maxDepth = Math.max(20, _sonarData.environment?.depth_m || 50);
+    const x0 = 78, y0 = 70, plotW = 620, plotH = 235;
+    const rangeToX = r => x0 + Math.min(r / maxRange, 1) * plotW;
+    const depthToY = d => y0 + Math.min(d / maxDepth, 1) * plotH;
+    const coneEndY = depthToY(Math.min(maxDepth, maxDepth * 0.88));
+    const coneEndX = rangeToX(Math.min(maxRange, _sonarData[_ppiMode]?.max_range_m || maxRange));
+    const rows = [0, .25, .5, .75, 1].map(frac => {
+      const y = y0 + frac * plotH;
+      const d = Math.round(frac * maxDepth);
+      return `<line x1="${x0}" y1="${y}" x2="${x0 + plotW}" y2="${y}" stroke="rgba(101,116,131,.22)"/>
+              <text x="18" y="${y + 4}" fill="#657483" font-size="11">${d}m</text>`;
+    }).join('');
+    const cols = [0, .25, .5, .75, 1].map(frac => {
+      const x = x0 + frac * plotW;
+      const r = Math.round(frac * maxRange / 100) * 100;
+      return `<line x1="${x}" y1="${y0}" x2="${x}" y2="${y0 + plotH}" stroke="rgba(101,116,131,.18)"/>
+              <text x="${x - 18}" y="334" fill="#657483" font-size="11">${(r / 1000).toFixed(1)}km</text>`;
+    }).join('');
+    const dots = targets.map(t => {
+      const x = rangeToX(t.range_m);
+      const y = depthToY(t.depth_m || maxDepth * .45);
+      const fill = t.detected ? '#2f7d57' : '#657483';
+      const stroke = t.detected ? '#ffffff' : 'rgba(101,116,131,.55)';
+      const r = t.detected ? 6 : 4;
+      return `<g>
+        <circle cx="${x}" cy="${y}" r="${r + 5}" fill="${fill}" opacity="${t.detected ? '.18' : '.05'}"/>
+        <circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="1.2" opacity="${t.detected ? '1' : '.55'}"/>
+        <title>${escHtml(t.label)} - ${t.detected ? 'detected' : 'missed'} - ${t.range_m}m range, ${t.depth_m}m depth</title>
+      </g>`;
+    }).join('');
+    svg.innerHTML = `
+      <rect x="0" y="0" width="760" height="360" fill="#f8fafb"/>
+      <rect x="${x0}" y="${y0}" width="${plotW}" height="${plotH}" fill="#ffffff" stroke="rgba(47,111,136,.35)"/>
+      ${rows}${cols}
+      <polygon points="${x0},${y0 + 6} ${coneEndX},${y0 + 45} ${coneEndX},${coneEndY}"
+               fill="rgba(47,111,136,.10)" stroke="rgba(47,111,136,.55)" stroke-width="1.5"/>
+      <rect x="42" y="48" width="70" height="18" rx="3" fill="#102536" stroke="#d8caa5"/>
+      <path d="M54 48 L70 35 L96 48" fill="none" stroke="#2f6f88" stroke-width="2"/>
+      <circle cx="${x0}" cy="${y0 + 6}" r="7" fill="#2f6f88" stroke="#fff"/>
+      ${dots}
+      <text x="20" y="24" fill="#172635" font-size="14" font-weight="700">${escHtml(_sonarScenarioName)} - ${escHtml(_ppiMode.replace('_', ' '))}</text>
+      <text x="20" y="346" fill="#657483" font-size="11">Range scale</text>
+      <text x="705" y="54" fill="#657483" font-size="11" transform="rotate(90 705,54)">Depth scale</text>
+      <circle cx="604" cy="24" r="5" fill="#2f7d57"/><text x="616" y="28" fill="#657483" font-size="11">detected</text>
+      <circle cx="674" cy="24" r="5" fill="#657483"/><text x="686" y="28" fill="#657483" font-size="11">missed</text>
+    `;
+  }
+
+  function renderDecisionSummary() {
+    if (!_sonarData) return;
+    const d = _sonarData.decision_summary || {};
+    const m = _sonarData.metrics || {};
+    document.getElementById('primaryTechKpi').textContent = d.primary_technical_kpi || 'Detection Coverage Retained';
+    document.getElementById('primarySustainKpi').textContent = d.primary_sustainability_kpi || 'Acoustic Exposure Reduction';
+    document.getElementById('convDetectSummary').textContent =
+      `${_sonarData.conventional.targets_detected} / ${m.n_targets} simulated targets`;
+    document.getElementById('ecoDetectSummary').textContent =
+      `${_sonarData.eco_adaptive.targets_detected} / ${m.n_targets} simulated targets (${m.eco_detection_retention_pct}% retained)`;
+    document.getElementById('savedSummary').textContent = d.what_was_saved || `${m.sel_reduction_pct}% acoustic exposure reduction`;
+    document.getElementById('tradeoffSummary').textContent = d.what_was_traded_off || 'Reduced range and possible misses for weak targets.';
+  }
+
+  async function copySonarEvidence() {
+    if (!_sonarData) {
+      showToast('Run a sonar scenario first.', 'error');
+      return;
+    }
+    const m = _sonarData.metrics;
+    const env = _sonarData.environment;
+    const cfg = _sonarData.config;
+    const d = _sonarData.decision_summary || {};
+    const lines = [
+      `Scenario: ${_sonarScenarioName}`,
+      'Disclaimer: This is an executable sonar simulation based on mathematical assumptions, not field hardware measurements.',
+      `Assumptions: ${(_sonarData.assumptions || []).join(' ')}`,
+      `Inputs: SL ${cfg.source_level} dB, ${cfg.frequency_kHz} kHz, pulse ${cfg.pulse_ms} ms, ping interval ${cfg.ping_interval_s} s, sea state ${env.sea_state}, depth ${env.depth_m} m, mission ${cfg.mission_min} min.`,
+      `Baseline: ${_sonarData.conventional.targets_detected}/${m.n_targets} targets, SEL ${_sonarData.conventional.sel_cum_dB} dB, duty cycle ${_sonarData.conventional.duty_cycle_pct}%.`,
+      `Improved case: ${_sonarData.eco_adaptive.targets_detected}/${m.n_targets} targets, SEL ${_sonarData.eco_adaptive.sel_cum_dB} dB, duty cycle ${_sonarData.eco_adaptive.duty_cycle_pct}%.`,
+      `Primary Technical KPI - Detection Coverage Retained: ${m.eco_detection_retention_pct}%.`,
+      `Primary Sustainability KPI - Acoustic Exposure Reduction: ${m.sel_reduction_pct}% (${m.sel_reduction_dB} dB), energy proxy reduction ${m.energy_reduction_pct}%.`,
+      `Trade-off: ${d.what_was_traded_off || 'Reduced range in exchange for lower acoustic exposure.'}`,
+      'Limitations: simulation-only, no field hardware measurements, simplified propagation/noise model.',
+    ].join('\n');
+    await navigator.clipboard.writeText(lines);
+    showToast('Sonar evidence copied.', 'success');
   }
 
   function renderSonarKPIs() {
@@ -1430,25 +2512,25 @@
         labels,
         datasets: [
           { label: 'Conventional', data: sw.map(p => p.conv_pd),
-            borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.08)',
+            borderColor: '#b94a48', backgroundColor: 'rgba(185,74,72,0.08)',
             tension: 0.4, pointRadius: 2 },
           { label: 'Eco-Adaptive', data: sw.map(p => p.eco_pd),
-            borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.08)',
+            borderColor: '#2f7d57', backgroundColor: 'rgba(47,125,87,0.08)',
             tension: 0.4, pointRadius: 2 },
           { label: 'Passive', data: sw.map(p => p.passive_pd),
-            borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,0.08)',
+            borderColor: '#2f6f88', backgroundColor: 'rgba(47,111,136,0.08)',
             tension: 0.4, pointRadius: 2, borderDash: [4, 3] },
         ]
       },
       options: {
         responsive: true,
-        plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+        plugins: { legend: { labels: { color: '#34495a', font: { size: 11 } } } },
         scales: {
-          x: { ticks: { color: '#64748b', maxRotation: 45 },
-               grid: { color: 'rgba(255,255,255,0.05)' } },
-          y: { min: 0, max: 1, ticks: { color: '#64748b' },
-               grid: { color: 'rgba(255,255,255,0.05)' },
-               title: { display: true, text: 'P(detection)', color: '#64748b' } }
+          x: { ticks: { color: '#657483', maxRotation: 45 },
+               grid: { color: '#e5eaee' } },
+          y: { min: 0, max: 1, ticks: { color: '#657483' },
+               grid: { color: '#e5eaee' },
+               title: { display: true, text: 'P(detection)', color: '#657483' } }
         }
       }
     });
@@ -1466,20 +2548,20 @@
           label: 'Cumulative SEL (dB re 1 μPa²·s)',
           data: sw.map(p => p.sel_cum_dB),
           backgroundColor: sw.map((_, i) =>
-            i === 0 ? 'rgba(239,68,68,0.75)' :
-            i === 2 ? 'rgba(34,197,94,0.75)' :
-                      'rgba(6,182,212,0.45)'),
+            i === 0 ? 'rgba(185,74,72,0.72)' :
+            i === 2 ? 'rgba(47,125,87,0.72)' :
+                      'rgba(47,111,136,0.42)'),
           borderRadius: 4, borderWidth: 0
         }]
       },
       options: {
         responsive: true,
-        plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+        plugins: { legend: { labels: { color: '#34495a', font: { size: 11 } } } },
         scales: {
-          x: { ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' },
-               title: { display: true, text: 'Duty Cycle', color: '#64748b' } },
-          y: { ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' },
-               title: { display: true, text: 'SEL (dB)', color: '#64748b' } }
+          x: { ticks: { color: '#657483' }, grid: { color: '#e5eaee' },
+               title: { display: true, text: 'Duty Cycle', color: '#657483' } },
+          y: { ticks: { color: '#657483' }, grid: { color: '#e5eaee' },
+               title: { display: true, text: 'SEL (dB)', color: '#657483' } }
         }
       }
     });
@@ -1505,6 +2587,29 @@
   }
 
   // ─── Eco-Sonar Sustainability Dashboard ─────────────────────────────────────
+  function renderTargetTable() {
+    const modeLabel = { conventional: 'Conventional', eco_adaptive: 'Eco-Adaptive', passive: 'Passive' };
+    document.getElementById('targetTableTitle').textContent =
+      'Target Detection Results - ' + (modeLabel[_ppiMode] || _ppiMode);
+    const results = _sonarData[_ppiMode].results;
+    document.getElementById('sonarTargetBody').innerHTML = results.map((t, i) => `
+      <tr>
+        <td style="color:var(--muted)">${i + 1}</td>
+        <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;
+              background:${t.color};margin-right:6px;vertical-align:middle;"></span>${escHtml(t.label)}</td>
+        <td>${(t.range_m / 1000).toFixed(2)} km</td>
+        <td>${t.depth_m !== undefined ? Number(t.depth_m).toFixed(1) + ' m' : '-'}</td>
+        <td style="font-family:monospace">${t.ts} dB</td>
+        <td style="font-family:monospace">${t.snr_dB !== null ? t.snr_dB + ' dB' : '- (passive)'}</td>
+        <td>${(t.pd * 100).toFixed(1)}%</td>
+        <td style="font-family:monospace">${t.echo_return_time_s !== null && t.echo_return_time_s !== undefined ? Number(t.echo_return_time_s).toFixed(4) + ' s' : '-'}</td>
+        <td>${t.estimated_range_m !== null && t.estimated_range_m !== undefined ? Number(t.estimated_range_m).toFixed(1) + ' m' : '-'}</td>
+        <td><span class="severity-badge ${t.detected ? 'status-detected' : 'status-missed'}">${t.detected ? 'DETECTED' : 'missed'}</span></td>
+        <td style="min-width:220px;color:var(--muted);font-size:.75rem;">${escHtml(t.detected ? t.explanation : (t.failure_reason || t.explanation || 'Below detection threshold.'))}</td>
+      </tr>
+    `).join('');
+  }
+
   let _dashCompChart = null, _dashSwpChart = null, _dashSonarSummary = null;
 
   async function fetchEcoSonarSummary() {
@@ -1550,7 +2655,7 @@
           {
             label: 'Conventional',
             data: [d.conventional.duty_cycle_pct, 100, 100],
-            backgroundColor: 'rgba(239,68,68,0.75)', borderRadius: 4, borderWidth: 0,
+            backgroundColor: 'rgba(185,74,72,0.72)', borderRadius: 4, borderWidth: 0,
           },
           {
             label: 'Eco-Adaptive',
@@ -1559,16 +2664,16 @@
               Math.max(0, 100 - m.sel_reduction_pct),
               m.eco_detection_retention_pct,
             ],
-            backgroundColor: 'rgba(34,197,94,0.75)', borderRadius: 4, borderWidth: 0,
+            backgroundColor: 'rgba(47,125,87,0.72)', borderRadius: 4, borderWidth: 0,
           },
         ],
       },
       options: {
         responsive: true,
-        plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+        plugins: { legend: { labels: { color: '#34495a', font: { size: 11 } } } },
         scales: {
-          x: { ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-          y: { min: 0, max: 110, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+          x: { ticks: { color: '#657483' }, grid: { color: '#e5eaee' } },
+          y: { min: 0, max: 110, ticks: { color: '#657483' }, grid: { color: '#e5eaee' } },
         },
       },
     });
@@ -1582,19 +2687,19 @@
         labels: sweep.map(p => (p.range_m / 1000).toFixed(2) + 'km'),
         datasets: [
           { label: 'Conventional', data: sweep.map(p => p.conv_pd),
-            borderColor: '#ef4444', tension: 0.4, pointRadius: 2 },
+            borderColor: '#b94a48', tension: 0.4, pointRadius: 2 },
           { label: 'Eco-Adaptive', data: sweep.map(p => p.eco_pd),
-            borderColor: '#22c55e', tension: 0.4, pointRadius: 2 },
+            borderColor: '#2f7d57', tension: 0.4, pointRadius: 2 },
           { label: 'Passive',      data: sweep.map(p => p.passive_pd),
-            borderColor: '#06b6d4', tension: 0.4, pointRadius: 2, borderDash: [4, 3] },
+            borderColor: '#2f6f88', tension: 0.4, pointRadius: 2, borderDash: [4, 3] },
         ],
       },
       options: {
         responsive: true,
-        plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+        plugins: { legend: { labels: { color: '#34495a', font: { size: 11 } } } },
         scales: {
-          x: { ticks: { color: '#64748b', maxRotation: 45 }, grid: { color: 'rgba(255,255,255,0.05)' } },
-          y: { min: 0, max: 1, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+          x: { ticks: { color: '#657483', maxRotation: 45 }, grid: { color: '#e5eaee' } },
+          y: { min: 0, max: 1, ticks: { color: '#657483' }, grid: { color: '#e5eaee' } },
         },
       },
     });
@@ -1657,7 +2762,7 @@
           ${row('Reproducibility',
             'Seed: <b>' + repro.default_seed + '</b> · ' + repro.reference_target +
             '<br><small style="color:var(--muted)">' + repro.threshold + ' · ' + repro.stats_source + '</small>')}
-          ${row('Estimated Dashboard Method', d.estimated_dashboard_method)}
+          ${row('Estimated Planning Method', d.estimated_dashboard_method)}
           ${row('Repository', '<a href="' + d.repository_link + '" target="_blank" style="color:var(--accent);">' +
             d.repository_link + '</a>')}
         </table>
@@ -1702,6 +2807,11 @@
       document.getElementById('disclosureContent').textContent = 'Failed to load disclosure.';
     }
   }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    loadDashboard();
+    fetchEcoSonarSummary();
+  });
 </script>
 </body>
 </html>

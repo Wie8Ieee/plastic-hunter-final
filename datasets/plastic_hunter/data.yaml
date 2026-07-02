@@ -1,0 +1,13 @@
+path: datasets/plastic_hunter
+train: images/train
+val: images/val
+test: images/test
+
+names:
+  0: plastic_bottle
+  1: plastic_bag
+  2: fishing_net
+  3: rope_fishing_line
+  4: foam_piece
+  5: plastic_cap
+  6: plastic_debris

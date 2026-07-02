@@ -1,0 +1,90 @@
+[
+  {
+    "slot": "01_marine_plastic_bottle",
+    "status": "copied",
+    "source_dataset": "TACO - Trash Annotations in Context, beach/coastal-looking subset selected from dataset images",
+    "source_url": "https://github.com/pedropro/TACO",
+    "note": "TACO includes beaches and diverse environments; this file was selected visually because it shows sand/coastal context from the imported dataset subset.",
+    "source_split": "train",
+    "source_image": "datasets/plastic_hunter/images/train/taco_00102.jpg",
+    "source_label": "datasets/plastic_hunter/labels/train/taco_00102.txt",
+    "classes_in_label": [
+      "plastic_bottle",
+      "plastic_cap"
+    ],
+    "demo_image": "sample_images/marine_dataset_demo/01_marine_plastic_bottle.jpg",
+    "demo_label": "sample_images/marine_dataset_demo/01_marine_plastic_bottle.txt"
+  },
+  {
+    "slot": "02_marine_plastic_bag",
+    "status": "copied",
+    "source_dataset": "TACO - Trash Annotations in Context, beach/coastal-looking subset selected from dataset images",
+    "source_url": "https://github.com/pedropro/TACO",
+    "note": "TACO includes beaches and diverse environments; this file was selected visually because it shows sand/coastal context from the imported dataset subset.",
+    "source_split": "train",
+    "source_image": "datasets/plastic_hunter/images/train/taco_00123.jpg",
+    "source_label": "datasets/plastic_hunter/labels/train/taco_00123.txt",
+    "classes_in_label": [
+      "plastic_bag"
+    ],
+    "demo_image": "sample_images/marine_dataset_demo/02_marine_plastic_bag.jpg",
+    "demo_label": "sample_images/marine_dataset_demo/02_marine_plastic_bag.txt"
+  },
+  {
+    "slot": "03_marine_mixed_debris",
+    "status": "copied",
+    "source_dataset": "TACO - Trash Annotations in Context, beach/coastal-looking subset selected from dataset images",
+    "source_url": "https://github.com/pedropro/TACO",
+    "note": "TACO includes beaches and diverse environments; this file was selected visually because it shows sand/coastal context from the imported dataset subset.",
+    "source_split": "train",
+    "source_image": "datasets/plastic_hunter/images/train/taco_00104.jpg",
+    "source_label": "datasets/plastic_hunter/labels/train/taco_00104.txt",
+    "classes_in_label": [
+      "plastic_bag",
+      "plastic_bottle",
+      "plastic_debris"
+    ],
+    "demo_image": "sample_images/marine_dataset_demo/03_marine_mixed_debris.jpg",
+    "demo_label": "sample_images/marine_dataset_demo/03_marine_mixed_debris.txt"
+  },
+  {
+    "slot": "04_marine_plastic_debris",
+    "status": "copied",
+    "source_dataset": "TACO - Trash Annotations in Context, beach/coastal-looking subset selected from dataset images",
+    "source_url": "https://github.com/pedropro/TACO",
+    "note": "TACO includes beaches and diverse environments; this file was selected visually because it shows sand/coastal context from the imported dataset subset.",
+    "source_split": "train",
+    "source_image": "datasets/plastic_hunter/images/train/taco_00134.jpg",
+    "source_label": "datasets/plastic_hunter/labels/train/taco_00134.txt",
+    "classes_in_label": [
+      "plastic_debris"
+    ],
+    "demo_image": "sample_images/marine_dataset_demo/04_marine_plastic_debris.jpg",
+    "demo_label": "sample_images/marine_dataset_demo/04_marine_plastic_debris.txt"
+  },
+  {
+    "slot": "05_marine_bottle_on_sand",
+    "status": "copied",
+    "source_dataset": "TACO - Trash Annotations in Context, beach/coastal-looking subset selected from dataset images",
+    "source_url": "https://github.com/pedropro/TACO",
+    "note": "TACO includes beaches and diverse environments; this file was selected visually because it shows sand/coastal context from the imported dataset subset.",
+    "source_split": "train",
+    "source_image": "datasets/plastic_hunter/images/train/taco_00116.jpg",
+    "source_label": "datasets/plastic_hunter/labels/train/taco_00116.txt",
+    "classes_in_label": [
+      "plastic_bottle"
+    ],
+    "demo_image": "sample_images/marine_dataset_demo/05_marine_bottle_on_sand.jpg",
+    "demo_label": "sample_images/marine_dataset_demo/05_marine_bottle_on_sand.txt"
+  },
+  {
+    "slot": "fishing_net_or_rope_marine",
+    "status": "not_available_in_current_import",
+    "reason": "No clearly marine fishing-net/rope sample was found in the small imported TACO subset. Use BePLi full dataset, Trash-ICRA19, River Floating Trash, or Roboflow Beach Waste export for this class."
+  },
+  {
+    "slot": "clean_beach_negative",
+    "status": "not_created",
+    "reason": "Do not fill with a random image. Needs a verified no-plastic beach/background sample from BePLi/Roboflow/background split."
+  }
+]

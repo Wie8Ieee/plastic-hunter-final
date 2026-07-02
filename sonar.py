@@ -70,6 +70,35 @@ PASSIVE_BASE_PD = {
 }
 
 
+def _detection_explanation(
+    mode: str,
+    detected: bool,
+    pd: float,
+    snr: float | None,
+    tl: float | None,
+    ts: float,
+    nl: float,
+    sl: float,
+) -> str:
+    if mode == "passive":
+        if detected:
+            return "Passive anomaly probability is high enough for a large/noisy debris class at this range."
+        return "Passive listening only: weak anomaly signature and range-dependent spreading reduce detection probability."
+    if detected:
+        if sl < 195:
+            return "Detection succeeded: SNR remains above threshold despite reduced eco source level."
+        return "Detection succeeded: enough SNR after transmission loss and ambient noise."
+    if snr is not None and snr < 0:
+        return "Detection failed: too much transmission loss and ambient noise left negative received SNR."
+    if ts <= -30:
+        return "Detection failed: weak target strength for small/soft debris produces a low echo."
+    if nl > 60:
+        return "Detection failed: high ambient noise from sea state masks the echo."
+    if sl < 195:
+        return "Detection failed: reduced source level trade-off lowered SNR below the detection threshold."
+    return "Detection failed: detection probability is below the 50% decision threshold."
+
+
 # ── Sonar equation ─────────────────────────────────────────────────────────────
 
 def snr_dB(sl: float, tl: float, ts: float, nl: float, ag: float = 0.0) -> float:
@@ -190,12 +219,14 @@ def run_sonar_scenario(
         key = rng.choice(debris_keys)
         r   = round(rng.uniform(150.0, 3800.0), 0)
         angle_deg = rng.uniform(0, 360)
+        target_depth = round(rng.uniform(4.0, max(6.0, min(depth_m * 0.9, 80.0))), 1)
         targets.append({
             "idx": i,
             "key": key,
             "label": DEBRIS_TARGETS[key]["label"],
             "color": DEBRIS_TARGETS[key]["color"],
             "range_m": r,
+            "depth_m": target_depth,
             "angle_deg": round(angle_deg, 1),
             "ts": DEBRIS_TARGETS[key]["ts"],
         })
@@ -204,6 +235,7 @@ def run_sonar_scenario(
     def evaluate_targets(sl_active: float, mode: str) -> List[Dict]:
         out = []
         for t in targets:
+            tl = None
             if mode == "passive":
                 # Hydrophone-only mode can flag large/noisy debris as an acoustic anomaly,
                 # but it cannot actively insonify targets. Keep this conservative and
@@ -217,8 +249,30 @@ def run_sonar_scenario(
                 tl = transmission_loss_dB(t["range_m"], frequency_kHz)
                 s  = round(snr_dB(sl_active, tl, t["ts"], nl), 1)
                 pd = detection_probability(s)
-            out.append({**t, "snr_dB": s, "pd": round(pd, 3),
-                         "detected": pd >= 0.50})
+            detected = pd >= 0.50
+            echo_time_s = round((2.0 * t["range_m"]) / cs, 4) if mode != "passive" and detected else None
+            estimated_range_m = round((echo_time_s * cs) / 2.0, 1) if echo_time_s is not None else None
+            explanation = _detection_explanation(
+                mode=mode,
+                detected=detected,
+                pd=pd,
+                snr=s,
+                tl=tl,
+                ts=t["ts"],
+                nl=nl,
+                sl=sl_active,
+            )
+            out.append({
+                **t,
+                "snr_dB": s,
+                "pd": round(pd, 3),
+                "detected": detected,
+                "echo_return_time_s": echo_time_s,
+                "estimated_range_m": estimated_range_m,
+                "transmission_loss_dB": round(tl, 1) if tl is not None else None,
+                "failure_reason": None if detected else explanation,
+                "explanation": explanation,
+            })
         return out
 
     conv_res    = evaluate_targets(source_level, "active")
@@ -273,6 +327,7 @@ def run_sonar_scenario(
         })
 
     return {
+        "scenario_name": "Custom Scenario",
         "environment": {
             "ambient_noise_dB":  round(nl, 1),
             "sound_speed_ms":    round(cs, 1),
@@ -322,6 +377,23 @@ def run_sonar_scenario(
             "n_targets":                    n_targets,
             "conv_max_range_m":             conv_maxr,
             "eco_max_range_m":              eco_maxr,
+        },
+        "decision_summary": {
+            "primary_technical_kpi": "Detection Coverage Retained",
+            "primary_sustainability_kpi": "Acoustic Exposure Reduction",
+            "conventional_detects": conv_det,
+            "eco_adaptive_detects": eco_det,
+            "passive_detects": passive_det,
+            "what_was_saved": (
+                f"{sel_red_pct}% cumulative SEL reduction, {dc_red_pct}% active duty-cycle cut, "
+                f"and {energy_reduction_pct(source_level, eco_sl, conv_dc_pct, eco_dc_pct)}% acoustic energy proxy reduction."
+            ),
+            "what_was_traded_off": (
+                f"Eco max range is {eco_maxr} m versus {conv_maxr} m conventional; "
+                "some weak or distant targets may be missed under reduced source level."
+            ),
+            "conventional_detected_labels": [r["label"] for r in conv_res if r["detected"]],
+            "eco_detected_labels": [r["label"] for r in eco_res if r["detected"]],
         },
         "range_sweep":  range_sweep,
         "dc_sweep":     dc_sweep,
