@@ -11,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 
 from database import get_all_results, get_stats, init_db, reset_and_reseed, save_detection
 from detector import run_detection
-from sonar import run_sonar_scenario
+from sonar import run_sonar_scenario, trade_off_explanation
 
 app = FastAPI(title="Plastic Hunter AI", version="1.0.0")
 
@@ -131,6 +131,116 @@ async def get_result_image(filename: str):
     if not path.exists():
         raise HTTPException(status_code=404, detail="Image not found.")
     return FileResponse(str(path), media_type="image/jpeg")
+
+
+@app.get("/evidence")
+async def evidence():
+    from datetime import datetime
+    stats = get_stats()
+    sonar = run_sonar_scenario()
+    m = sonar["metrics"]
+    c = sonar["conventional"]
+    e = sonar["eco_adaptive"]
+    return JSONResponse({
+        "problem": (
+            "Marine plastic debris accumulates below the surface, undetectable by visual methods alone. "
+            "Conventional continuous-active sonar creates acoustic disturbance harmful to cetaceans and marine life."
+        ),
+        "core_function": (
+            "Eco-adaptive sonar reduces source level −12 dB and duty cycle by 67% using adaptive ping management. "
+            "Combined with CV-based surface detection, the system provides multi-layer marine pollution monitoring "
+            "with quantifiable sustainability improvements."
+        ),
+        "baseline": {
+            "description": "Conventional active sonar: fixed 200 dB SL, continuous pinging at 5 s interval (2% duty cycle).",
+            "cumulative_sel_dB":    c["sel_cum_dB"],
+            "duty_cycle_pct":       c["duty_cycle_pct"],
+            "n_pings_per_mission":  c["n_pings"],
+            "max_range_m":          c["max_range_m"],
+        },
+        "improved_case": {
+            "description": "Eco-adaptive sonar: 188 dB SL (−12 dB), 15 s ping interval (0.67% duty cycle).",
+            "cumulative_sel_dB":    e["sel_cum_dB"],
+            "duty_cycle_pct":       e["duty_cycle_pct"],
+            "n_pings_per_mission":  e["n_pings"],
+            "max_range_m":          e["max_range_m"],
+        },
+        "test_conditions": {
+            "frequency_kHz":       10,
+            "sea_state":           3,
+            "depth_m":             50,
+            "mission_duration_min": 60,
+            "propagation_model":   "Spherical spreading + Thorp absorption",
+            "noise_model":         "Knudsen-Wenz ambient noise",
+        },
+        "primary_technical_kpi": {
+            "metric":             "Detection retention vs conventional",
+            "value":              f"{m['eco_detection_retention_pct']}%",
+            "max_range_eco_m":    m["eco_max_range_m"],
+            "max_range_conv_m":   m["conv_max_range_m"],
+        },
+        "primary_sustainability_kpi": {
+            "metric":                      "Cumulative Sound Exposure Level reduction",
+            "sel_reduction_dB":            m["sel_reduction_dB"],
+            "sel_reduction_pct":           m["sel_reduction_pct"],
+            "duty_cycle_reduction_pct":    m["duty_cycle_reduction_pct"],
+            "energy_reduction_pct":        m.get("energy_reduction_pct", 0.0),
+        },
+        "trade_off_explanation": trade_off_explanation(m),
+        "limitation": (
+            "Spherical spreading TL only; no ray-tracing, multi-path, or bathymetry. "
+            "CV detection is edge-guided simulation, not a calibrated ML model. "
+            "Marine mammal avoidance not yet implemented."
+        ),
+        "repository_link":  "https://github.com/[team]/plastic-hunter-ai",
+        "cv_stats": {
+            "total_scans":        stats["total_scans"],
+            "plastics_detected":  stats["total_plastics_detected"],
+        },
+        "generated_at": datetime.utcnow().isoformat() + "Z",
+    })
+
+
+@app.get("/disclosure")
+async def disclosure():
+    return JSONResponse({
+        "ai_tools": [
+            {"name": "Replit AI (Claude)", "use": "Code generation, architecture design, and debugging assistance"},
+        ],
+        "libraries": [
+            {"name": "FastAPI",          "version": "0.115+",   "purpose": "REST API framework"},
+            {"name": "Uvicorn",          "version": "0.30+",    "purpose": "ASGI server"},
+            {"name": "Pillow (PIL)",     "version": "10+",      "purpose": "Image processing and bounding-box annotation"},
+            {"name": "NumPy",            "version": "1.26+",    "purpose": "Numerical computation for CV simulation"},
+            {"name": "SQLite3",          "version": "built-in", "purpose": "Detection record storage"},
+            {"name": "Leaflet.js",       "version": "1.9.x",    "purpose": "Interactive geospatial map"},
+            {"name": "Chart.js",         "version": "4.x",      "purpose": "Data visualization and dashboards"},
+            {"name": "python-multipart", "version": "latest",   "purpose": "Form data parsing for file uploads"},
+        ],
+        "academic_references": [
+            "Mackenzie K.V. (1981) — Nine-term equation for sound speed in seawater. JASA 70(3)",
+            "Thorp W.H. (1967) — Analytic description of the low-frequency attenuation coefficient. JASA 42",
+            "Wenz G.M. (1962) — Acoustic ambient noise in the ocean. JASA 34(12)",
+            "Urick R.J. (1983) — Principles of Underwater Sound, 3rd ed. McGraw-Hill",
+            "NOAA Marine Debris Program — Plastic debris statistics and coastal hotspots",
+        ],
+        "datasets": [
+            {
+                "name":        "Synthetic demo detections",
+                "description": (
+                    "12 seeded records at real coastal coordinates: Tunis, Athens, Rome, Tokyo, Miami, "
+                    "London, Singapore, Mexico City, Sydney, Hong Kong, Vietnam, Bali."
+                ),
+                "source": "Coordinates from public geographic reference data",
+            }
+        ],
+        "prior_work": "Extends the Phase 1 concept submitted to IEEE AESS Sustainability Hackathon 2026, Challenge 3.",
+        "note": (
+            "The acoustic detection simulation uses physically-motivated equations (sonar equation, TL models, Knudsen noise) "
+            "rather than recorded underwater data. CV detection uses edge-guided simulation instead of YOLOv8/PyTorch "
+            "to avoid 400 MB+ CUDA package disk limits on the free hosting tier."
+        ),
+    })
 
 
 @app.post("/sonar/ping")

@@ -104,6 +104,33 @@ def cumulative_sel_dB(sel_ping: float, n_pings: int) -> float:
     return sel_ping + 10.0 * math.log10(n_pings)
 
 
+# ── Energy proxy ───────────────────────────────────────────────────────────────
+
+def energy_reduction_pct(conv_sl: float, eco_sl: float,
+                          conv_dc: float, eco_dc: float) -> float:
+    """
+    Acoustic energy proxy reduction (%).
+    Total acoustic energy ∝ 10^(SL/10) × duty_cycle.
+    Returns percentage reduction of eco vs conventional.
+    """
+    conv_e = 10 ** (conv_sl / 10) * max(conv_dc, 1e-9)
+    eco_e  = 10 ** (eco_sl  / 10) * max(eco_dc,  1e-9)
+    return round((1.0 - eco_e / conv_e) * 100.0, 1)
+
+
+def trade_off_explanation(metrics: Dict[str, Any]) -> str:
+    """Human-readable trade-off summary for judges / evidence sheet."""
+    return (
+        f"Eco-adaptive sonar achieves {metrics['sel_reduction_pct']}% reduction in "
+        f"cumulative Sound Exposure Level ({metrics['sel_reduction_dB']} dB) and cuts "
+        f"active-ping duty cycle by {metrics['duty_cycle_reduction_pct']}% while retaining "
+        f"{metrics['eco_detection_retention_pct']}% of conventional target detections. "
+        f"The accepted trade-off is a reduced max range "
+        f"({metrics['eco_max_range_m']/1000:.1f} km vs {metrics['conv_max_range_m']/1000:.1f} km "
+        f"conventional), which is acceptable for close-range harbour and coastal patrol."
+    )
+
+
 # ── Scenario runner ────────────────────────────────────────────────────────────
 
 def run_sonar_scenario(
@@ -277,6 +304,8 @@ def run_sonar_scenario(
             "duty_cycle_reduction_pct":     dc_red_pct,
             "eco_detection_retention_pct":  eco_ret_pct,
             "passive_detection_pct":        pas_ret_pct,
+            "energy_reduction_pct":         energy_reduction_pct(
+                                                source_level, eco_sl, conv_dc_pct, eco_dc_pct),
             "n_targets":                    n_targets,
             "conv_max_range_m":             conv_maxr,
             "eco_max_range_m":              eco_maxr,
@@ -289,5 +318,92 @@ def run_sonar_scenario(
             "pulse_ms":        pulse_ms,
             "ping_interval_s": ping_interval_s,
             "mission_min":     mission_min,
+        },
+    }
+
+
+# ── Multi-case validation ───────────────────────────────────────────────────────
+
+def run_multi_case_scenarios(
+    source_level: float = 200.0,
+    frequency_kHz: float = 10.0,
+    pulse_ms: float = 100.0,
+    ping_interval_s: float = 5.0,
+) -> Dict[str, Any]:
+    """
+    Validate eco-sonar KPIs across multiple operating conditions.
+    Returns structured test results ready for chart generation.
+    """
+    nl_ref = ambient_noise_dB(3, frequency_kHz)
+    eco_sl = source_level - 12.0
+    eco_interval = ping_interval_s * 3.0
+    ref_ts = DEBRIS_TARGETS["plastic_drum"]["ts"]
+
+    # Test 1: Source level sweep (SL robustness)
+    sl_sweep = []
+    for sl in [160, 170, 180, 190, 200, 210, 220]:
+        eco = sl - 12.0
+        rconv = max_range_50pct(sl,  ref_ts, nl_ref, frequency_kHz)
+        reco  = max_range_50pct(eco, ref_ts, nl_ref, frequency_kHz)
+        sl_sweep.append({
+            "source_level_dB": sl,
+            "conv_max_range_m": rconv,
+            "eco_max_range_m":  reco,
+            "range_retention_pct": round(reco / max(rconv, 1) * 100.0, 1),
+        })
+
+    # Test 2: Sea state (ambient noise) sweep
+    ss_sweep = []
+    for ss in [1, 2, 3, 4, 5]:
+        nl = ambient_noise_dB(ss, frequency_kHz)
+        rconv = max_range_50pct(source_level, ref_ts, nl, frequency_kHz)
+        reco  = max_range_50pct(eco_sl,       ref_ts, nl, frequency_kHz)
+        ss_sweep.append({
+            "sea_state": ss,
+            "ambient_noise_dB": round(nl, 1),
+            "conv_max_range_m": rconv,
+            "eco_max_range_m":  reco,
+            "range_retention_pct": round(reco / max(rconv, 1) * 100.0, 1),
+        })
+
+    # Test 3: Duty cycle / SEL trade-off sweep
+    conv_sel_ping = sel_per_ping_dB(source_level, pulse_ms)
+    dc_sweep = []
+    for factor in [1.0, 0.75, 0.50, 0.33, 0.20, 0.10]:
+        interval = ping_interval_s / factor
+        dc_pct   = (pulse_ms / 1000.0) / interval * 100.0
+        n_pings  = int(60.0 * 60.0 / interval)
+        sel      = cumulative_sel_dB(conv_sel_ping, n_pings) if n_pings > 0 else 0.0
+        dc_sweep.append({
+            "duty_cycle_pct":              round(dc_pct, 2),
+            "sel_cum_dB":                  round(sel, 1),
+            "n_pings":                     n_pings,
+            "dc_reduction_vs_baseline_pct": round((1.0 - factor) * 100.0, 1),
+        })
+
+    # Test 4: Energy reduction across SL + DC combined
+    energy_table = []
+    for sl_delta in [0, -3, -6, -9, -12, -15]:
+        for dc_factor in [1.0, 0.67, 0.5, 0.33]:
+            conv_e = 10 ** (source_level / 10) * 1.0
+            eco_e  = 10 ** ((source_level + sl_delta) / 10) * dc_factor
+            e_red  = round((1.0 - eco_e / conv_e) * 100.0, 1)
+            energy_table.append({
+                "sl_delta_dB":      sl_delta,
+                "dc_factor":        dc_factor,
+                "energy_reduction_pct": e_red,
+            })
+
+    return {
+        "source_level_sweep": sl_sweep,
+        "sea_state_sweep":    ss_sweep,
+        "duty_cycle_sweep":   dc_sweep,
+        "energy_table":       energy_table,
+        "summary": {
+            "eco_sl_delta_dB":       -12.0,
+            "eco_dc_factor":         1.0 / 3.0,
+            "eco_energy_reduction_pct": round((1.0 - (10 ** (-12.0 / 10)) / 3.0) * 100.0, 1),
+            "sea_states_tested":     len(ss_sweep),
+            "sl_levels_tested":      len(sl_sweep),
         },
     }

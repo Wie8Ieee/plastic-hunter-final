@@ -332,6 +332,54 @@
       display: inline-block; width: 8px; height: 8px;
       border-radius: 50%; margin-right: 3px; vertical-align: middle;
     }
+    /* ─── MODALS ─── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.72);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9990; opacity: 0; pointer-events: none; transition: opacity .2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px; max-width: 680px; width: 92%;
+      max-height: 84vh; overflow-y: auto;
+    }
+    .modal-hdr {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 18px;
+    }
+    .modal-close {
+      background: none; border: none; color: var(--muted);
+      font-size: 1.25rem; cursor: pointer; line-height: 1; padding: 2px 6px;
+    }
+    .modal-close:hover { color: var(--fg); }
+    /* ─── ECO SUSTAINABILITY KPIs ─── */
+    .btn-sm {
+      padding: 6px 14px; font-size: 0.75rem; border-radius: 8px;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--fg); cursor: pointer; transition: all .15s;
+    }
+    .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+    .eco-kpis {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px;
+    }
+    @media (max-width: 860px) { .eco-kpis { grid-template-columns: 1fr 1fr; } }
+    .eco-kpi {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px; text-align: center;
+    }
+    .eco-kpi-val { font-size: 1.55rem; font-weight: 700; color: var(--green); }
+    .eco-kpi-lbl { font-size: 0.71rem; color: var(--muted); margin-top: 4px; }
+    .eco-kpi-sub { font-size: 0.67rem; color: var(--muted); margin-top: 2px; }
+    .disclose-section { margin-bottom: 16px; }
+    .disclose-section h4 {
+      color: var(--accent); font-size: 0.82rem; margin: 0 0 6px;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .disclose-section p, .disclose-section li {
+      font-size: 0.81rem; color: var(--fg); line-height: 1.65; margin: 2px 0;
+    }
+    .disclose-section ul { padding-left: 18px; margin: 4px 0; }
   </style>
 </head>
 <body>
@@ -483,6 +531,49 @@
       <div>
         <div class="reduction-value" id="reductionPct">—%</div>
         <div class="reduction-sub">estimated reduction<br/>vs baseline</div>
+      </div>
+    </div>
+
+    <!-- Eco-Sonar Sustainability KPIs -->
+    <div class="card" style="margin-top:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <div class="card-title" style="margin-bottom:0;">Eco-Sonar Sustainability Impact</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-sm" onclick="showEvidenceModal()">Evidence Sheet</button>
+          <button class="btn-sm" onclick="showDisclosureModal()">AI Disclosure</button>
+        </div>
+      </div>
+      <div class="eco-kpis">
+        <div class="eco-kpi">
+          <div class="eco-kpi-val" id="dashSelRed">—</div>
+          <div class="eco-kpi-lbl">Acoustic Exposure Reduced</div>
+          <div class="eco-kpi-sub" id="dashSelSub">Sound Exposure Level</div>
+        </div>
+        <div class="eco-kpi">
+          <div class="eco-kpi-val" id="dashDcRed">—</div>
+          <div class="eco-kpi-lbl">Active Transmission Cut</div>
+          <div class="eco-kpi-sub" id="dashDcSub">Duty cycle reduction</div>
+        </div>
+        <div class="eco-kpi">
+          <div class="eco-kpi-val" id="dashEnergyRed">—</div>
+          <div class="eco-kpi-lbl">Energy Saved (proxy)</div>
+          <div class="eco-kpi-sub">Acoustic power × duty cycle</div>
+        </div>
+        <div class="eco-kpi">
+          <div class="eco-kpi-val" id="dashDetRet">—</div>
+          <div class="eco-kpi-lbl">Detection Retained</div>
+          <div class="eco-kpi-sub" id="dashDetSub">Eco vs conventional</div>
+        </div>
+      </div>
+      <div class="charts-grid" style="margin-top:16px;">
+        <div class="chart-box">
+          <div class="card-title">Baseline vs Eco-Sonar</div>
+          <canvas id="sonarCompareChart" height="160"></canvas>
+        </div>
+        <div class="chart-box">
+          <div class="card-title">Detection P(d) vs Range</div>
+          <canvas id="dashSweepChart" height="160"></canvas>
+        </div>
       </div>
     </div>
   </section>
@@ -663,6 +754,28 @@
 
 </main>
 
+<!-- Evidence Sheet Modal -->
+<div class="modal-overlay" id="evidenceModal" onclick="closeModal('evidenceModal')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-hdr">
+      <div class="card-title" style="margin-bottom:0;">Final Evidence Sheet</div>
+      <button class="modal-close" onclick="closeModal('evidenceModal')">✕</button>
+    </div>
+    <div id="evidenceContent" style="font-size:0.83rem;line-height:1.7;">Loading…</div>
+  </div>
+</div>
+
+<!-- AI Disclosure Modal -->
+<div class="modal-overlay" id="disclosureModal" onclick="closeModal('disclosureModal')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-hdr">
+      <div class="card-title" style="margin-bottom:0;">AI / External Resource Disclosure</div>
+      <button class="modal-close" onclick="closeModal('disclosureModal')">✕</button>
+    </div>
+    <div id="disclosureContent" style="font-size:0.83rem;line-height:1.7;">Loading…</div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
@@ -675,7 +788,7 @@
     tab.classList.add('active');
 
     if (id === 'map') initMap();
-    if (id === 'dashboard') loadDashboard();
+    if (id === 'dashboard') { loadDashboard(); fetchEcoSonarSummary(); }
     if (id === 'history') loadHistory();
   }
 
@@ -1255,6 +1368,178 @@
         <td><span class="severity-badge severity-${t.detected ? 'high' : 'low'}">${t.detected ? 'DETECTED' : 'missed'}</span></td>
       </tr>
     `).join('');
+  }
+
+  // ─── Eco-Sonar Sustainability Dashboard ─────────────────────────────────────
+  let _dashCompChart = null, _dashSwpChart = null;
+
+  async function fetchEcoSonarSummary() {
+    try {
+      const fd = new FormData();
+      Object.entries({
+        source_level: 200, frequency_kHz: 10, pulse_ms: 100,
+        ping_interval_s: 5, sea_state: 3, depth_m: 50, mission_min: 60, seed: 42,
+      }).forEach(([k, v]) => fd.append(k, v));
+      const d = await fetch('/sonar/ping', { method: 'POST', body: fd }).then(r => r.json());
+      const m = d.metrics;
+
+      document.getElementById('dashSelRed').textContent    = m.sel_reduction_pct + '%';
+      document.getElementById('dashSelSub').textContent    = m.sel_reduction_dB + ' dB SEL cut';
+      document.getElementById('dashDcRed').textContent     = m.duty_cycle_reduction_pct + '%';
+      document.getElementById('dashDcSub').textContent     =
+        d.conventional.duty_cycle_pct.toFixed(2) + '% → ' + d.eco_adaptive.duty_cycle_pct.toFixed(2) + '%';
+      document.getElementById('dashEnergyRed').textContent =
+        (m.energy_reduction_pct !== undefined ? m.energy_reduction_pct : m.sel_reduction_pct) + '%';
+      document.getElementById('dashDetRet').textContent    = m.eco_detection_retention_pct + '%';
+      document.getElementById('dashDetSub').textContent    =
+        d.eco_adaptive.targets_detected + '/' + m.n_targets + ' targets detected';
+
+      _renderSonarCompareChart(d);
+      _renderDashSweepChart(d.range_sweep);
+    } catch (e) { console.warn('Eco sonar summary failed:', e); }
+  }
+
+  function _renderSonarCompareChart(d) {
+    if (_dashCompChart) { _dashCompChart.destroy(); _dashCompChart = null; }
+    const m = d.metrics;
+    _dashCompChart = new Chart(document.getElementById('sonarCompareChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Duty Cycle (%)', 'SEL (normalized %)', 'Detection Coverage (%)'],
+        datasets: [
+          {
+            label: 'Conventional',
+            data: [d.conventional.duty_cycle_pct, 100, 100],
+            backgroundColor: 'rgba(239,68,68,0.75)', borderRadius: 4, borderWidth: 0,
+          },
+          {
+            label: 'Eco-Adaptive',
+            data: [
+              d.eco_adaptive.duty_cycle_pct,
+              Math.max(0, 100 - m.sel_reduction_pct),
+              m.eco_detection_retention_pct,
+            ],
+            backgroundColor: 'rgba(34,197,94,0.75)', borderRadius: 4, borderWidth: 0,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+        scales: {
+          x: { ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+          y: { min: 0, max: 110, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        },
+      },
+    });
+  }
+
+  function _renderDashSweepChart(sweep) {
+    if (_dashSwpChart) { _dashSwpChart.destroy(); _dashSwpChart = null; }
+    _dashSwpChart = new Chart(document.getElementById('dashSweepChart'), {
+      type: 'line',
+      data: {
+        labels: sweep.map(p => (p.range_m / 1000).toFixed(2) + 'km'),
+        datasets: [
+          { label: 'Conventional', data: sweep.map(p => p.conv_pd),
+            borderColor: '#ef4444', tension: 0.4, pointRadius: 2 },
+          { label: 'Eco-Adaptive', data: sweep.map(p => p.eco_pd),
+            borderColor: '#22c55e', tension: 0.4, pointRadius: 2 },
+          { label: 'Passive',      data: sweep.map(p => p.passive_pd),
+            borderColor: '#06b6d4', tension: 0.4, pointRadius: 2, borderDash: [4, 3] },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+        scales: {
+          x: { ticks: { color: '#64748b', maxRotation: 45 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+          y: { min: 0, max: 1, ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        },
+      },
+    });
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+
+  async function showEvidenceModal() {
+    document.getElementById('evidenceModal').classList.add('open');
+    document.getElementById('evidenceContent').innerHTML = 'Loading…';
+    try {
+      const d = await fetch('/evidence').then(r => r.json());
+      const row = (lbl, val) => `
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 12px 8px 0;color:var(--accent);font-weight:600;
+                     white-space:nowrap;vertical-align:top;font-size:0.77rem;">${lbl}</td>
+          <td style="padding:8px 0;color:var(--fg);">${val}</td>
+        </tr>`;
+      document.getElementById('evidenceContent').innerHTML = `
+        <table style="width:100%;border-collapse:collapse;">
+          ${row('Problem', d.problem)}
+          ${row('Core Function', d.core_function)}
+          ${row('Baseline', d.baseline.description +
+            ' &nbsp;<b>SEL ' + d.baseline.cumulative_sel_dB + ' dB · DC ' + d.baseline.duty_cycle_pct + '%</b>')}
+          ${row('Improved Case', d.improved_case.description +
+            ' &nbsp;<b>SEL ' + d.improved_case.cumulative_sel_dB + ' dB · DC ' + d.improved_case.duty_cycle_pct + '%</b>')}
+          ${row('Test Conditions',
+            d.test_conditions.frequency_kHz + ' kHz · Sea State ' + d.test_conditions.sea_state +
+            ' · ' + d.test_conditions.depth_m + ' m depth · ' + d.test_conditions.mission_duration_min +
+            ' min mission<br><small style="color:var(--muted)">' +
+            d.test_conditions.propagation_model + ' · ' + d.test_conditions.noise_model + '</small>')}
+          ${row('Primary Tech KPI',
+            'Detection retention: <b>' + d.primary_technical_kpi.value + '</b> ' +
+            '(eco ' + d.primary_technical_kpi.max_range_eco_m + ' m vs conv ' +
+            d.primary_technical_kpi.max_range_conv_m + ' m)')}
+          ${row('Primary Sustainability KPI',
+            'SEL reduced <b>' + d.primary_sustainability_kpi.sel_reduction_pct + '%</b> (' +
+            d.primary_sustainability_kpi.sel_reduction_dB + ' dB) · DC cut <b>' +
+            d.primary_sustainability_kpi.duty_cycle_reduction_pct + '%</b> · Energy proxy −<b>' +
+            d.primary_sustainability_kpi.energy_reduction_pct + '%</b>')}
+          ${row('Trade-off', d.trade_off_explanation)}
+          ${row('Limitation', d.limitation)}
+          ${row('Repository', '<a href="' + d.repository_link + '" target="_blank" style="color:var(--accent);">' +
+            d.repository_link + '</a>')}
+        </table>
+        <p style="font-size:0.71rem;color:var(--muted);margin-top:12px;text-align:right;">
+          Generated: ${d.generated_at}
+        </p>`;
+    } catch (e) {
+      document.getElementById('evidenceContent').textContent = 'Failed to load evidence sheet.';
+    }
+  }
+
+  async function showDisclosureModal() {
+    document.getElementById('disclosureModal').classList.add('open');
+    document.getElementById('disclosureContent').innerHTML = 'Loading…';
+    try {
+      const d = await fetch('/disclosure').then(r => r.json());
+      document.getElementById('disclosureContent').innerHTML = `
+        <p style="color:var(--muted);font-size:0.79rem;margin-bottom:18px;">${d.note}</p>
+        <div class="disclose-section">
+          <h4>AI Tools</h4>
+          ${d.ai_tools.map(t => `<p><b>${t.name}</b>: ${t.use}</p>`).join('')}
+        </div>
+        <div class="disclose-section">
+          <h4>Libraries &amp; Frameworks</h4>
+          <ul>${d.libraries.map(l => `<li><b>${l.name}</b> (${l.version}) — ${l.purpose}</li>`).join('')}</ul>
+        </div>
+        <div class="disclose-section">
+          <h4>Academic References</h4>
+          <ul>${d.academic_references.map(r => `<li>${r}</li>`).join('')}</ul>
+        </div>
+        <div class="disclose-section">
+          <h4>Data Sources</h4>
+          ${d.datasets.map(ds => `<p><b>${ds.name}</b>: ${ds.description}</p>`).join('')}
+        </div>
+        <div class="disclose-section">
+          <h4>Prior Work</h4>
+          <p>${d.prior_work}</p>
+        </div>`;
+    } catch (e) {
+      document.getElementById('disclosureContent').textContent = 'Failed to load disclosure.';
+    }
   }
 </script>
 </body>

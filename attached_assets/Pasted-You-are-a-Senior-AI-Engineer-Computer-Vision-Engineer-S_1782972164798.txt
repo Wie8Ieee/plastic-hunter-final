@@ -1,0 +1,416 @@
+You are a Senior AI Engineer, Computer Vision Engineer, Sonar Systems Engineer, Full Stack Developer, and Technical Researcher.
+
+Continue the existing Plastic Hunter AI project ONLY.
+
+==================================================
+IMPORTANT RULES
+==================================================
+
+- DO NOT rebuild the project.
+- DO NOT change the current architecture.
+- DO NOT remove any existing feature.
+- DO NOT replace FastAPI.
+- DO NOT replace SQLite.
+- DO NOT replace the current UI theme.
+- Keep the existing project structure.
+
+Existing files:
+
+- main.py
+- sonar.py
+- detector.py
+- database.py
+- static/index.html
+
+The project already works.
+
+Your goal is NOT to create a new project.
+
+Your goal is to transform the existing prototype into a stable, competition-ready IEEE AESS Sustainability Hackathon Final Phase project.
+
+==================================================
+VERY IMPORTANT
+==================================================
+
+Priority is NOT adding more features.
+
+Priority is:
+
+1. Stable working demo
+2. Scientific correctness
+3. Easy explanation
+4. Clean UI
+5. IEEE Final Phase compliance
+
+Never invent scientific claims.
+
+Never generate fake data.
+
+Never hardcode random KPIs.
+
+Every value must either:
+
+- be calculated,
+- simulated,
+- or clearly labelled as an estimate.
+
+If something is estimated,
+explicitly mention the assumptions.
+
+==================================================
+PART 1
+SONAR ENGINE
+==================================================
+
+Improve sonar.py.
+
+Implement a realistic sonar simulation.
+
+Support:
+
+- Passive mode
+- Active mode
+- Hybrid mode
+
+Implement:
+
+- Source Level (SL)
+- Noise Level (NL)
+- Transmission Loss (TL)
+- Signal Level
+- Detection Threshold
+- Duty Cycle
+- Energy Consumption
+- Acoustic Exposure
+
+Generate outputs for:
+
+- Low Noise
+- Medium Noise
+- High Noise
+
+- Near Target
+- Medium Range
+- Long Range
+
+Return all calculated values.
+
+Generate comparison graphs.
+
+==================================================
+PART 2
+BASELINE COMPARISON
+==================================================
+
+Create a complete comparison between:
+
+Conventional Sonar
+
+and
+
+Plastic Hunter AI
+
+Compare:
+
+- Duty Cycle
+- Source Level
+- Energy
+- Acoustic Exposure
+- Detection Performance
+- Processing Time
+
+Display:
+
+- Tables
+- Charts
+- Percentage Improvement
+
+If assumptions are used,
+display them.
+
+==================================================
+PART 3
+COMPUTER VISION
+==================================================
+
+Improve detector.py.
+
+If YOLOv8 is available,
+use it.
+
+Otherwise improve the current detector.
+
+Support:
+
+- Bounding Boxes
+- Confidence Scores
+- Plastic Categories
+- Detection Count
+- Processing Time
+- JSON Output
+- Annotated Images
+
+==================================================
+PART 4
+DATABASE
+==================================================
+
+Store:
+
+- Detection Time
+- Plastic Count
+- Plastic Type
+- Confidence
+- Latitude
+- Longitude
+- Sonar Mode
+- Sonar Parameters
+- Energy Used
+- Acoustic Exposure
+- Processing Time
+
+==================================================
+PART 5
+FASTAPI
+==================================================
+
+Keep the current API.
+
+Improve it only if necessary.
+
+Include endpoints such as:
+
+POST /detect
+
+GET /results
+
+GET /stats
+
+GET /sonar
+
+GET /comparison
+
+GET /evidence
+
+GET /demo
+
+Return clean JSON.
+
+==================================================
+PART 6
+WEB DASHBOARD
+==================================================
+
+Keep the existing design.
+
+Improve usability.
+
+Dashboard should include:
+
+- Upload Image
+- Detection Results
+- Annotated Image
+- Interactive Map
+- Statistics
+- Sonar Results
+- Baseline Comparison
+- Sustainability KPIs
+
+==================================================
+PART 7
+MAP
+==================================================
+
+Leaflet Map.
+
+Every detection creates a marker.
+
+Marker shows:
+
+- Detection Date
+- Plastic Count
+- Confidence
+- Sonar Mode
+
+==================================================
+PART 8
+CHARTS
+==================================================
+
+Generate charts for:
+
+- Plastic detections
+- Confidence
+- Plastic categories
+- Energy Consumption
+- Acoustic Exposure
+- Duty Cycle
+- Baseline vs Eco-Friendly
+- Processing Time
+
+==================================================
+PART 9
+VALIDATION
+==================================================
+
+Run multiple validation scenarios.
+
+Show:
+
+- Detection Rate
+- Processing Time
+- Energy Saved
+- Acoustic Reduction
+- Trade-off Analysis
+
+==================================================
+PART 10
+SUSTAINABILITY KPIs
+==================================================
+
+Generate only scientifically justifiable KPIs.
+
+Examples:
+
+- Duty Cycle Reduction
+- Energy Reduction
+- Acoustic Exposure Reduction
+- Detection Performance Retained
+
+Do NOT invent impossible environmental metrics.
+
+==================================================
+PART 11
+LIVE DEMO
+==================================================
+
+Create a stable offline demo.
+
+Flow:
+
+Upload Image
+
+↓
+
+Plastic Detection
+
+↓
+
+Annotated Image
+
+↓
+
+Database Storage
+
+↓
+
+Map Update
+
+↓
+
+Dashboard Update
+
+↓
+
+Sonar Simulation
+
+↓
+
+Baseline Comparison
+
+↓
+
+Evidence Sheet
+
+The demo must work with one click.
+
+==================================================
+PART 12
+BACKUP DEMO
+==================================================
+
+Create offline demo mode using sample images.
+
+==================================================
+PART 13
+IEEE EVIDENCE SHEET
+==================================================
+
+Automatically generate the required one-page IEEE Evidence Sheet.
+
+Include:
+
+- Problem
+- Core Function
+- Baseline
+- Improved Case
+- Test Conditions
+- Technical KPI
+- Sustainability KPI
+- Limitations
+- Repository Link Placeholder
+
+==================================================
+PART 14
+README
+==================================================
+
+Generate a professional README.
+
+Include:
+
+- Project Overview
+- Architecture
+- Installation
+- Dependencies
+- API
+- Parameters
+- Assumptions
+- Reproduction Steps
+- Limitations
+- Future Work
+- References
+
+==================================================
+PART 15
+DISCLOSURES
+==================================================
+
+Generate:
+
+- AI Usage Disclosure
+- External Libraries
+- Datasets
+- Standards
+- References
+
+==================================================
+PART 16
+QUALITY REQUIREMENTS
+==================================================
+
+Every button must work.
+
+Every chart must display real calculated data.
+
+No placeholders.
+
+No TODOs.
+
+No fake statistics.
+
+No fake claims.
+
+The code must remain clean and maintainable.
+
+==================================================
+FINAL OBJECTIVE
+==================================================
+
+The final project should satisfy all IEEE AESS Final Phase requirements while remaining stable, scientifically defensible, easy to explain to judges, and suitable for a 5-minute presentation and a 5-minute live demo.
+
+Modify the existing project only.
+
+Do not rebuild it.
+Do not explain your work.
+Implement the improvements directly.
