@@ -1,0 +1,293 @@
+"""
+Plastic Hunter AI — Eco-Sonar Simulation Engine
+IEEE AESS Sustainability Hackathon 2026 — Challenge 3
+
+Implements the active sonar equation, transmission loss (spherical spreading
++ Thorp absorption), Knudsen-Wenz ambient noise, target-strength estimates
+for marine plastic debris, and an eco-adaptive duty-cycle management algorithm.
+
+Signal chain:
+  Waveform (LFM chirp) → Propagation (TL) → Target (TS) → Reception (NL)
+  → Detection (threshold / P_d) → Classification (debris type)
+"""
+
+import math
+import random
+from typing import Any, Dict, List
+
+
+# ── Physical models ────────────────────────────────────────────────────────────
+
+def sound_speed_ms(temp_c: float = 15.0, salinity_ppt: float = 35.0, depth_m: float = 50.0) -> float:
+    """Mackenzie (1981) equation, valid 2–30 °C, 25–40 ppt, 0–8000 m."""
+    T, S, D = temp_c, salinity_ppt, depth_m
+    return (1448.96 + 4.591 * T - 5.304e-2 * T**2 + 2.374e-4 * T**3
+            + 1.340 * (S - 35) + 1.630e-2 * D + 1.675e-7 * D**2
+            - 1.025e-2 * T * (S - 35) - 7.139e-13 * T * D**3)
+
+
+def transmission_loss_dB(range_m: float, freq_kHz: float) -> float:
+    """
+    Two-way transmission loss (active sonar).
+    TL = 40·log10(R) + 2·alpha·R/1000   [dB]
+    Thorp absorption coefficient (Thorp 1967, simplified).
+    """
+    if range_m < 1:
+        return 0.0
+    f = freq_kHz
+    alpha = (0.11 * f**2 / (1 + f**2)
+             + 44 * f**2 / (4100 + f**2)
+             + 3e-4 * f**2 + 3.3e-3)
+    return 40 * math.log10(range_m) + 2 * alpha * range_m / 1000
+
+
+def ambient_noise_dB(sea_state: int, freq_kHz: float) -> float:
+    """
+    Knudsen-Wenz ambient noise (dB re 1 uPa^2/Hz).
+    Wind/wave noise dominates 0.1–30 kHz.
+    """
+    wind_noise = 50.0 - 17.0 * math.log10(max(freq_kHz, 0.1)) + 5.0 * sea_state
+    thermal_noise = -15.0 + 20.0 * math.log10(freq_kHz)
+    return max(thermal_noise, min(90.0, wind_noise))
+
+
+# ── Debris target strengths ────────────────────────────────────────────────────
+
+DEBRIS_TARGETS = {
+    "ghost_net":      {"ts": -10.0, "label": "Ghost Fishing Net",       "color": "#ef4444"},
+    "plastic_drum":   {"ts": -15.0, "label": "Large Plastic Drum",      "color": "#f97316"},
+    "submerged_bag":  {"ts": -25.0, "label": "Submerged Plastic Bag",   "color": "#f59e0b"},
+    "foam_block":     {"ts": -28.0, "label": "Foam / Packaging Block",  "color": "#84cc16"},
+    "micro_cluster":  {"ts": -40.0, "label": "Micro-Plastic Cluster",   "color": "#06b6d4"},
+}
+
+
+# ── Sonar equation ─────────────────────────────────────────────────────────────
+
+def snr_dB(sl: float, tl: float, ts: float, nl: float, ag: float = 0.0) -> float:
+    """Active sonar equation: SNR = SL - TL + TS - NL + AG."""
+    return sl - tl + ts - nl + ag
+
+
+def detection_probability(snr: float) -> float:
+    """
+    P_d sigmoid approximation for P_fa = 1e-4.
+    Inflection at SNR ~ 5 dB, slope ~ 0.55 per dB.
+    """
+    return 1.0 / (1.0 + math.exp(-0.55 * (snr - 5.0)))
+
+
+def max_range_50pct(sl: float, ts_dB: float, nl: float, freq_kHz: float) -> float:
+    """Binary search for range where P_d = 50%."""
+    lo, hi = 10.0, 50_000.0
+    for _ in range(60):
+        mid = (lo + hi) / 2.0
+        tl = transmission_loss_dB(mid, freq_kHz)
+        if detection_probability(snr_dB(sl, tl, ts_dB, nl)) >= 0.50:
+            lo = mid
+        else:
+            hi = mid
+    return round(lo, 0)
+
+
+# ── SEL accounting ─────────────────────────────────────────────────────────────
+
+def sel_per_ping_dB(sl: float, tau_ms: float) -> float:
+    """Sound Exposure Level of one ping at 1 m: SEL = SL + 10·log10(tau_s)."""
+    return sl + 10.0 * math.log10(tau_ms / 1000.0)
+
+
+def cumulative_sel_dB(sel_ping: float, n_pings: int) -> float:
+    """SEL_cum = SEL_ping + 10·log10(N).  Returns 0 for passive (N=0)."""
+    if n_pings <= 0:
+        return 0.0
+    return sel_ping + 10.0 * math.log10(n_pings)
+
+
+# ── Scenario runner ────────────────────────────────────────────────────────────
+
+def run_sonar_scenario(
+    source_level: float = 200.0,
+    frequency_kHz: float = 10.0,
+    pulse_ms: float = 100.0,
+    ping_interval_s: float = 5.0,
+    mission_min: float = 60.0,
+    sea_state: int = 3,
+    depth_m: float = 50.0,
+    seed: int = 42,
+) -> Dict[str, Any]:
+    """
+    Run a complete sonar scenario in three modes and return full metrics.
+
+    Modes compared:
+      conventional  — max SL, fixed duty cycle, always active
+      eco_adaptive  — SL reduced 12 dB, ping interval x3 (67% duty-cycle cut)
+      passive       — zero active pings, hydrophone listening only
+
+    Returns JSON-serialisable dict with per-mode metrics, range sweep,
+    and target-level detection results.
+    """
+    rng = random.Random(seed)
+
+    # ── Environment ──────────────────────────────────────────────────────────
+    nl = ambient_noise_dB(sea_state, frequency_kHz)
+    cs = sound_speed_ms(depth_m=depth_m)
+
+    # ── Conventional parameters ───────────────────────────────────────────────
+    conv_dc_pct  = (pulse_ms / 1000.0) / ping_interval_s * 100.0
+    conv_n_pings = int(mission_min * 60.0 / ping_interval_s)
+    conv_sel_ping = sel_per_ping_dB(source_level, pulse_ms)
+    conv_sel_cum  = cumulative_sel_dB(conv_sel_ping, conv_n_pings)
+
+    # ── Eco-Adaptive parameters ───────────────────────────────────────────────
+    eco_sl          = source_level - 12.0
+    eco_interval    = ping_interval_s * 3.0
+    eco_dc_pct      = (pulse_ms / 1000.0) / eco_interval * 100.0
+    eco_n_pings     = int(mission_min * 60.0 / eco_interval)
+    eco_sel_ping    = sel_per_ping_dB(eco_sl, pulse_ms)
+    eco_sel_cum     = cumulative_sel_dB(eco_sel_ping, eco_n_pings)
+
+    # ── Place random targets ──────────────────────────────────────────────────
+    debris_keys = list(DEBRIS_TARGETS.keys())
+    n_targets = rng.randint(4, 8)
+    targets = []
+    for i in range(n_targets):
+        key = rng.choice(debris_keys)
+        r   = round(rng.uniform(150.0, 3800.0), 0)
+        angle_deg = rng.uniform(0, 360)
+        targets.append({
+            "idx": i,
+            "key": key,
+            "label": DEBRIS_TARGETS[key]["label"],
+            "color": DEBRIS_TARGETS[key]["color"],
+            "range_m": r,
+            "angle_deg": round(angle_deg, 1),
+            "ts": DEBRIS_TARGETS[key]["ts"],
+        })
+
+    # ── Run each target through sonar equation ────────────────────────────────
+    def evaluate_targets(sl_active: float, mode: str) -> List[Dict]:
+        out = []
+        for t in targets:
+            if mode == "passive":
+                # Hydrophone only: large reflectors generate flow-induced
+                # and structural noise; estimate from TS proxy
+                pd = max(0.05, min(0.80, (t["ts"] + 45.0) / 30.0))
+                s  = None
+            else:
+                tl = transmission_loss_dB(t["range_m"], frequency_kHz)
+                s  = round(snr_dB(sl_active, tl, t["ts"], nl), 1)
+                pd = detection_probability(s)
+            out.append({**t, "snr_dB": s, "pd": round(pd, 3),
+                         "detected": pd >= 0.50})
+        return out
+
+    conv_res    = evaluate_targets(source_level, "active")
+    eco_res     = evaluate_targets(eco_sl,        "active")
+    passive_res = evaluate_targets(0.0,            "passive")
+
+    conv_det    = sum(1 for r in conv_res    if r["detected"])
+    eco_det     = sum(1 for r in eco_res     if r["detected"])
+    passive_det = sum(1 for r in passive_res if r["detected"])
+
+    # ── Max detection ranges (P_d = 50%, ref target: plastic_drum) ──────────
+    ref_ts = DEBRIS_TARGETS["plastic_drum"]["ts"]
+    conv_maxr = max_range_50pct(source_level, ref_ts, nl, frequency_kHz)
+    eco_maxr  = max_range_50pct(eco_sl,       ref_ts, nl, frequency_kHz)
+
+    # ── SEL & duty-cycle reduction metrics ───────────────────────────────────
+    sel_red_dB  = round(conv_sel_cum - eco_sel_cum, 1)
+    # Energy equivalent reduction: 10^(delta/10) → linear ratio
+    sel_red_pct = round((1.0 - 10.0 ** ((eco_sel_cum - conv_sel_cum) / 10.0)) * 100.0, 1)
+    dc_red_pct  = round((1.0 - eco_dc_pct / max(conv_dc_pct, 0.001)) * 100.0, 1)
+    eco_ret_pct = round(eco_det  / max(conv_det, 1) * 100.0, 1)
+    pas_ret_pct = round(passive_det / max(conv_det, 1) * 100.0, 1)
+
+    # ── Range sweep: P_d vs range for all three modes ─────────────────────────
+    sweep_ranges = [100, 250, 500, 750, 1000, 1500, 2000, 2500, 3000, 4000, 5000]
+    range_sweep = []
+    for rm in sweep_ranges:
+        tl = transmission_loss_dB(rm, frequency_kHz)
+        c_snr = snr_dB(source_level, tl, ref_ts, nl)
+        e_snr = snr_dB(eco_sl,       tl, ref_ts, nl)
+        # Passive: range-limited empirical decay
+        p_pd  = max(0.03, 0.72 * math.exp(-rm / 2200.0))
+        range_sweep.append({
+            "range_m":    rm,
+            "conv_pd":    round(detection_probability(c_snr), 3),
+            "eco_pd":     round(detection_probability(e_snr), 3),
+            "passive_pd": round(p_pd, 3),
+        })
+
+    # ── Multi-case validation (duty cycle sweep) ─────────────────────────────
+    dc_sweep = []
+    for dc_factor in [1.0, 0.75, 0.50, 0.33, 0.20, 0.10]:
+        test_interval = ping_interval_s / dc_factor
+        test_n = int(mission_min * 60.0 / test_interval)
+        test_sel = cumulative_sel_dB(conv_sel_ping, test_n) if test_n > 0 else 0
+        dc_pct = (pulse_ms / 1000.0) / test_interval * 100.0
+        dc_sweep.append({
+            "duty_cycle_pct": round(dc_pct, 2),
+            "sel_cum_dB":     round(test_sel, 1),
+            "n_pings":        test_n,
+        })
+
+    return {
+        "environment": {
+            "ambient_noise_dB":  round(nl, 1),
+            "sound_speed_ms":    round(cs, 1),
+            "sea_state":         sea_state,
+            "depth_m":           depth_m,
+        },
+        "conventional": {
+            "source_level_dB":   source_level,
+            "duty_cycle_pct":    round(conv_dc_pct, 2),
+            "ping_interval_s":   ping_interval_s,
+            "n_pings":           conv_n_pings,
+            "sel_cum_dB":        round(conv_sel_cum, 1),
+            "max_range_m":       conv_maxr,
+            "targets_detected":  conv_det,
+            "total_targets":     n_targets,
+            "results":           conv_res,
+        },
+        "eco_adaptive": {
+            "source_level_dB":   round(eco_sl, 1),
+            "duty_cycle_pct":    round(eco_dc_pct, 2),
+            "ping_interval_s":   eco_interval,
+            "n_pings":           eco_n_pings,
+            "sel_cum_dB":        round(eco_sel_cum, 1),
+            "max_range_m":       eco_maxr,
+            "targets_detected":  eco_det,
+            "total_targets":     n_targets,
+            "results":           eco_res,
+        },
+        "passive": {
+            "source_level_dB":   0,
+            "duty_cycle_pct":    0,
+            "n_pings":           0,
+            "sel_cum_dB":        0,
+            "max_range_m":       None,
+            "targets_detected":  passive_det,
+            "total_targets":     n_targets,
+            "results":           passive_res,
+        },
+        "metrics": {
+            "sel_reduction_dB":             sel_red_dB,
+            "sel_reduction_pct":            sel_red_pct,
+            "duty_cycle_reduction_pct":     dc_red_pct,
+            "eco_detection_retention_pct":  eco_ret_pct,
+            "passive_detection_pct":        pas_ret_pct,
+            "n_targets":                    n_targets,
+            "conv_max_range_m":             conv_maxr,
+            "eco_max_range_m":              eco_maxr,
+        },
+        "range_sweep":  range_sweep,
+        "dc_sweep":     dc_sweep,
+        "config": {
+            "source_level":    source_level,
+            "frequency_kHz":   frequency_kHz,
+            "pulse_ms":        pulse_ms,
+            "ping_interval_s": ping_interval_s,
+            "mission_min":     mission_min,
+        },
+    }

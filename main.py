@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 
 from database import get_all_results, get_stats, init_db, reset_and_reseed, save_detection
 from detector import run_detection
+from sonar import run_sonar_scenario
 
 app = FastAPI(title="Plastic Hunter AI", version="1.0.0")
 
@@ -130,6 +131,31 @@ async def get_result_image(filename: str):
     if not path.exists():
         raise HTTPException(status_code=404, detail="Image not found.")
     return FileResponse(str(path), media_type="image/jpeg")
+
+
+@app.post("/sonar/ping")
+async def sonar_ping(
+    source_level: float = Form(200.0),
+    frequency_kHz: float = Form(10.0),
+    pulse_ms: float = Form(100.0),
+    ping_interval_s: float = Form(5.0),
+    mission_min: float = Form(60.0),
+    sea_state: int = Form(3),
+    depth_m: float = Form(50.0),
+    seed: int = Form(42),
+):
+    """Run a full sonar scenario and return metrics for all three operating modes."""
+    result = run_sonar_scenario(
+        source_level=source_level,
+        frequency_kHz=frequency_kHz,
+        pulse_ms=pulse_ms,
+        ping_interval_s=ping_interval_s,
+        mission_min=mission_min,
+        sea_state=sea_state,
+        depth_m=depth_m,
+        seed=seed,
+    )
+    return JSONResponse(result)
 
 
 app.mount("/static", StaticFiles(directory="static"), name="static")

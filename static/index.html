@@ -276,6 +276,62 @@
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ─── SONAR TAB ─── */
+    .sonar-grid {
+      display: grid; grid-template-columns: 380px 1fr;
+      gap: 16px; align-items: start;
+    }
+    @media (max-width: 860px) { .sonar-grid { grid-template-columns: 1fr; } }
+    .sonar-param-group { margin-bottom: 14px; }
+    .sonar-param-group label {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.78rem; font-weight: 500; color: var(--fg); margin-bottom: 4px;
+    }
+    .sonar-param-group input[type=range] {
+      width: 100%; height: 4px; -webkit-appearance: none;
+      background: var(--border); border-radius: 2px; cursor: pointer;
+    }
+    .sonar-param-group input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 14px; height: 14px;
+      border-radius: 50%; background: var(--accent); cursor: pointer;
+    }
+    .sonar-param-group select {
+      width: 100%; padding: 7px 10px; background: var(--bg);
+      color: var(--fg); border: 1px solid var(--border); border-radius: 8px;
+      font-size: 0.82rem; cursor: pointer; margin-top: 2px;
+    }
+    .sonar-param-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .param-unit { color: var(--accent); font-size: 0.70rem; font-family: monospace; }
+    .ppi-card { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+    .ppi-mode-row { display: flex; border-bottom: 1px solid var(--border); }
+    .ppi-mode-btn {
+      flex: 1; padding: 10px 4px; background: none; border: none;
+      color: var(--muted); font-size: 0.73rem; font-weight: 600; cursor: pointer;
+      transition: all .2s; border-right: 1px solid var(--border);
+    }
+    .ppi-mode-btn:last-child { border-right: none; }
+    .ppi-mode-btn.active { color: var(--accent); background: rgba(6,182,212,.08); }
+    .ppi-mode-btn:hover:not(.active) { color: var(--fg); }
+    .ppi-wrap {
+      position: relative; flex: 1; display: flex;
+      align-items: center; justify-content: center;
+      padding: 16px; background: #050a12; min-height: 200px;
+    }
+    #ppiCanvas { border-radius: 50%; display: block; max-width: 100%; max-height: 340px; }
+    .ppi-placeholder {
+      position: absolute; text-align: center;
+      color: var(--muted); font-size: 0.82rem; line-height: 1.7; pointer-events: none;
+    }
+    .ppi-legend {
+      padding: 10px 16px; border-top: 1px solid var(--border);
+      font-size: 0.71rem; color: var(--muted);
+      display: flex; flex-wrap: wrap; gap: 10px;
+    }
+    .ppi-legend-dot {
+      display: inline-block; width: 8px; height: 8px;
+      border-radius: 50%; margin-right: 3px; vertical-align: middle;
+    }
   </style>
 </head>
 <body>
@@ -291,6 +347,7 @@
     <button class="nav-tab" onclick="showSection('map', this)">Map</button>
     <button class="nav-tab" onclick="showSection('dashboard', this)">Dashboard</button>
     <button class="nav-tab" onclick="showSection('history', this)">History</button>
+    <button class="nav-tab" onclick="showSection('sonar', this)">Sonar</button>
   </div>
 </nav>
 
@@ -455,6 +512,151 @@
             <tr><td colspan="8" style="text-align:center; color:var(--muted); padding:40px;">Loading…</td></tr>
           </tbody>
         </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SONAR ═══ -->
+  <section id="sonar" class="section">
+    <div class="page-header">
+      <h2>Eco-Sonar Pipeline</h2>
+      <p>Active / passive / hybrid sonar for subsurface marine plastic debris detection — eco-adaptive duty-cycle management quantifiably reduces acoustic disturbance while retaining detection coverage.</p>
+    </div>
+
+    <div class="sonar-grid">
+      <!-- Parameters panel -->
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px;">Scenario Parameters</div>
+        <div class="sonar-param-group">
+          <label>Source Level (SL) <span class="param-unit" id="slVal">200 dB re 1μPa@1m</span></label>
+          <input type="range" id="slInput" min="160" max="220" value="200" step="1"
+                 oninput="document.getElementById('slVal').textContent=this.value+' dB re 1μPa@1m'">
+        </div>
+        <div class="sonar-param-group">
+          <label>Frequency <span class="param-unit" id="freqVal">10 kHz</span></label>
+          <input type="range" id="freqInput" min="1" max="100" value="10" step="1"
+                 oninput="document.getElementById('freqVal').textContent=this.value+' kHz'">
+        </div>
+        <div class="sonar-param-group">
+          <label>Pulse Duration <span class="param-unit" id="pulseVal">100 ms</span></label>
+          <input type="range" id="pulseInput" min="10" max="500" value="100" step="10"
+                 oninput="document.getElementById('pulseVal').textContent=this.value+' ms'">
+        </div>
+        <div class="sonar-param-group">
+          <label>Ping Interval <span class="param-unit" id="intervalVal">5 s</span></label>
+          <input type="range" id="intervalInput" min="1" max="30" value="5" step="1"
+                 oninput="document.getElementById('intervalVal').textContent=this.value+' s'">
+        </div>
+        <div class="sonar-param-row">
+          <div class="sonar-param-group">
+            <label>Sea State
+              <select id="seaStateInput">
+                <option value="1">1 – Calm</option>
+                <option value="2">2 – Slight</option>
+                <option value="3" selected>3 – Moderate</option>
+                <option value="4">4 – Rough</option>
+                <option value="5">5 – Very Rough</option>
+              </select>
+            </label>
+          </div>
+          <div class="sonar-param-group">
+            <label>Depth
+              <select id="depthInput">
+                <option value="20">20 m</option>
+                <option value="50" selected>50 m</option>
+                <option value="100">100 m</option>
+                <option value="200">200 m</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div class="sonar-param-group">
+          <label>Mission Duration
+            <select id="missionInput">
+              <option value="30">30 min</option>
+              <option value="60" selected>60 min</option>
+              <option value="120">2 h</option>
+              <option value="480">8 h</option>
+            </select>
+          </label>
+        </div>
+        <button class="btn btn-primary" id="sonarRunBtn" onclick="runSonar()" style="width:100%;margin-top:8px;">
+          Run Scenario
+        </button>
+      </div>
+
+      <!-- PPI display -->
+      <div class="card ppi-card">
+        <div class="ppi-mode-row">
+          <button class="ppi-mode-btn active" data-mode="conventional"  onclick="setPpiMode('conventional')">Conventional</button>
+          <button class="ppi-mode-btn"         data-mode="eco_adaptive" onclick="setPpiMode('eco_adaptive')">Eco-Adaptive</button>
+          <button class="ppi-mode-btn"         data-mode="passive"      onclick="setPpiMode('passive')">Passive</button>
+        </div>
+        <div class="ppi-wrap">
+          <canvas id="ppiCanvas" width="320" height="320"></canvas>
+          <div class="ppi-placeholder" id="ppiPlaceholder">Run a scenario to view<br>the sonar PPI display</div>
+        </div>
+        <div class="ppi-legend" id="ppiLegend" style="display:none">
+          <span><span class="ppi-legend-dot" style="background:#ef4444"></span>Ghost Net</span>
+          <span><span class="ppi-legend-dot" style="background:#f97316"></span>Plastic Drum</span>
+          <span><span class="ppi-legend-dot" style="background:#f59e0b"></span>Submerged Bag</span>
+          <span><span class="ppi-legend-dot" style="background:#84cc16"></span>Foam Block</span>
+          <span><span class="ppi-legend-dot" style="background:#06b6d4"></span>Micro-Plastic</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI row -->
+    <div id="sonarKpis" style="display:none">
+      <div class="stats-row" style="margin-top:24px;">
+        <div class="stat-card">
+          <div class="stat-label">SEL Reduction</div>
+          <div class="stat-value" id="kpiSel">—</div>
+          <div class="stat-sub" id="kpiSelSub"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Duty Cycle Cut</div>
+          <div class="stat-value" id="kpiDc">—</div>
+          <div class="stat-sub" id="kpiDcSub"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Eco Detection Retention</div>
+          <div class="stat-value" id="kpiRet">—</div>
+          <div class="stat-sub" id="kpiRetSub"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Max Range (Eco vs Conv)</div>
+          <div class="stat-value" id="kpiRange">—</div>
+          <div class="stat-sub" id="kpiRangeSub"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts + target table -->
+    <div id="sonarCharts" style="display:none; margin-top:24px;">
+      <div class="charts-grid">
+        <div class="card">
+          <div class="card-title">P(detection) vs Range — All Modes</div>
+          <canvas id="sweepChart" height="200"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-title">Duty Cycle vs Cumulative SEL (Validation)</div>
+          <canvas id="dcChart" height="200"></canvas>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <div class="card-title" id="targetTableTitle">Target Detection Results</div>
+        <div class="history-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Debris Type</th><th>Range</th>
+                <th>Target Strength</th><th>SNR</th><th>P(detect)</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="sonarTargetBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </section>
@@ -811,6 +1013,248 @@
     } catch(e) {
       tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--red); padding:40px;">Failed to load data.</td></tr>';
     }
+  }
+
+  // ─── Eco-Sonar System ────────────────────────────────────────────────────
+  let _sonarData = null;
+  let _sweepChart = null, _dcChart = null;
+  let _ppiMode = 'conventional';
+  let _ppiRaf = null;
+  let _ppiAngle = 0;
+
+  async function runSonar() {
+    const btn = document.getElementById('sonarRunBtn');
+    btn.disabled = true; btn.textContent = 'Running…';
+    try {
+      const fd = new FormData();
+      fd.append('source_level',    document.getElementById('slInput').value);
+      fd.append('frequency_kHz',   document.getElementById('freqInput').value);
+      fd.append('pulse_ms',        document.getElementById('pulseInput').value);
+      fd.append('ping_interval_s', document.getElementById('intervalInput').value);
+      fd.append('sea_state',       document.getElementById('seaStateInput').value);
+      fd.append('depth_m',         document.getElementById('depthInput').value);
+      fd.append('mission_min',     document.getElementById('missionInput').value);
+      fd.append('seed', String(Math.floor(Math.random() * 99999)));
+
+      const res = await fetch('/sonar/ping', { method: 'POST', body: fd });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      _sonarData = await res.json();
+
+      document.getElementById('sonarKpis').style.display = '';
+      document.getElementById('sonarCharts').style.display = '';
+      document.getElementById('ppiLegend').style.display = '';
+      document.getElementById('ppiPlaceholder').style.display = 'none';
+
+      renderSonarKPIs();
+      setPpiMode(_ppiMode);
+      renderSweepChart();
+      renderDcChart();
+      renderTargetTable();
+
+      if (_ppiRaf) cancelAnimationFrame(_ppiRaf);
+      _ppiAngle = 0;
+      animatePPI();
+      showToast('Sonar scenario complete.', 'success');
+    } catch(e) {
+      showToast('Simulation failed: ' + e.message, 'error');
+    }
+    btn.disabled = false; btn.textContent = 'Run Scenario';
+  }
+
+  function setPpiMode(mode) {
+    _ppiMode = mode;
+    document.querySelectorAll('.ppi-mode-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.mode === mode));
+    if (_sonarData) { drawPPI(); renderTargetTable(); }
+  }
+
+  function animatePPI() {
+    _ppiAngle = (_ppiAngle + 0.018) % (Math.PI * 2);
+    drawPPI();
+    _ppiRaf = requestAnimationFrame(animatePPI);
+  }
+
+  function drawPPI() {
+    if (!_sonarData) return;
+    const canvas = document.getElementById('ppiCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const cx = W / 2, cy = H / 2;
+    const R = Math.min(cx, cy) - 14;
+    const maxRng = 5000;
+
+    ctx.fillStyle = '#050a12';
+    ctx.fillRect(0, 0, W, H);
+
+    // Phosphor bloom
+    const bloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+    bloom.addColorStop(0, 'rgba(6,182,212,0.07)');
+    bloom.addColorStop(1, 'rgba(6,182,212,0)');
+    ctx.fillStyle = bloom;
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fill();
+
+    // Range rings
+    [1000, 2000, 3000, 4000, 5000].forEach(rm => {
+      const pr = (rm / maxRng) * R;
+      ctx.beginPath(); ctx.arc(cx, cy, pr, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(6,182,212,0.13)'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = 'rgba(100,116,139,0.55)'; ctx.font = '9px monospace';
+      ctx.fillText(`${rm / 1000}km`, cx + pr + 3, cy + 4);
+    });
+
+    // Cross-hairs
+    ctx.strokeStyle = 'rgba(6,182,212,0.07)'; ctx.setLineDash([3, 5]);
+    ctx.beginPath();
+    ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy);
+    ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R);
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // Outer ring
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(6,182,212,0.3)'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // Sweep phosphor trail
+    for (let i = 0; i < 32; i++) {
+      const a = _ppiAngle - i * 0.045;
+      const alpha = (1 - i / 32) * 0.18;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, R, a - 0.046, a, false);
+      ctx.closePath();
+      ctx.fillStyle = `rgba(6,182,212,${alpha})`;
+      ctx.fill();
+    }
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(_ppiAngle) * R, cy + Math.sin(_ppiAngle) * R);
+    ctx.strokeStyle = 'rgba(6,182,212,0.75)'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // Targets
+    const modeData = _sonarData[_ppiMode];
+    modeData.results.forEach(t => {
+      const ang = t.angle_deg * Math.PI / 180;
+      const pr  = Math.min((t.range_m / maxRng) * R, R - 10);
+      const tx  = cx + Math.cos(ang) * pr;
+      const ty  = cy + Math.sin(ang) * pr;
+      if (t.detected) {
+        const glow = ctx.createRadialGradient(tx, ty, 0, tx, ty, 16);
+        glow.addColorStop(0, t.color + 'BB'); glow.addColorStop(1, t.color + '00');
+        ctx.fillStyle = glow;
+        ctx.beginPath(); ctx.arc(tx, ty, 16, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(tx, ty, 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = t.color; ctx.fill();
+      } else {
+        ctx.beginPath(); ctx.arc(tx, ty, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(100,116,139,0.3)'; ctx.fill();
+      }
+    });
+
+    // Ownship marker
+    ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+    ctx.fillStyle = '#06b6d4'; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+  }
+
+  function renderSonarKPIs() {
+    const m = _sonarData.metrics;
+    document.getElementById('kpiSel').textContent    = m.sel_reduction_pct + '%';
+    document.getElementById('kpiSelSub').textContent = m.sel_reduction_dB + ' dB reduction in cumulative SEL';
+    document.getElementById('kpiDc').textContent     = m.duty_cycle_reduction_pct + '%';
+    document.getElementById('kpiDcSub').textContent  =
+      _sonarData.conventional.duty_cycle_pct.toFixed(2) + '% → ' +
+      _sonarData.eco_adaptive.duty_cycle_pct.toFixed(2) + '% active duty cycle';
+    document.getElementById('kpiRet').textContent    = m.eco_detection_retention_pct + '%';
+    document.getElementById('kpiRetSub').textContent =
+      _sonarData.eco_adaptive.targets_detected + ' / ' + m.n_targets + ' targets detected';
+    const rKm = (m.eco_max_range_m / 1000).toFixed(1);
+    const cKm = (m.conv_max_range_m / 1000).toFixed(1);
+    document.getElementById('kpiRange').textContent    = rKm + ' km';
+    document.getElementById('kpiRangeSub').textContent = 'vs ' + cKm + ' km conventional';
+  }
+
+  function renderSweepChart() {
+    if (_sweepChart) { _sweepChart.destroy(); _sweepChart = null; }
+    const sw = _sonarData.range_sweep;
+    const labels = sw.map(p => (p.range_m / 1000).toFixed(2) + 'km');
+    _sweepChart = new Chart(document.getElementById('sweepChart'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Conventional', data: sw.map(p => p.conv_pd),
+            borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.08)',
+            tension: 0.4, pointRadius: 2 },
+          { label: 'Eco-Adaptive', data: sw.map(p => p.eco_pd),
+            borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.08)',
+            tension: 0.4, pointRadius: 2 },
+          { label: 'Passive', data: sw.map(p => p.passive_pd),
+            borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,0.08)',
+            tension: 0.4, pointRadius: 2, borderDash: [4, 3] },
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+        scales: {
+          x: { ticks: { color: '#64748b', maxRotation: 45 },
+               grid: { color: 'rgba(255,255,255,0.05)' } },
+          y: { min: 0, max: 1, ticks: { color: '#64748b' },
+               grid: { color: 'rgba(255,255,255,0.05)' },
+               title: { display: true, text: 'P(detection)', color: '#64748b' } }
+        }
+      }
+    });
+  }
+
+  function renderDcChart() {
+    if (_dcChart) { _dcChart.destroy(); _dcChart = null; }
+    const sw = _sonarData.dc_sweep;
+    const labels = sw.map(p => p.duty_cycle_pct.toFixed(2) + '%');
+    _dcChart = new Chart(document.getElementById('dcChart'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Cumulative SEL (dB re 1 μPa²·s)',
+          data: sw.map(p => p.sel_cum_dB),
+          backgroundColor: sw.map((_, i) =>
+            i === 0 ? 'rgba(239,68,68,0.75)' :
+            i === 2 ? 'rgba(34,197,94,0.75)' :
+                      'rgba(6,182,212,0.45)'),
+          borderRadius: 4, borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+        scales: {
+          x: { ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' },
+               title: { display: true, text: 'Duty Cycle', color: '#64748b' } },
+          y: { ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' },
+               title: { display: true, text: 'SEL (dB)', color: '#64748b' } }
+        }
+      }
+    });
+  }
+
+  function renderTargetTable() {
+    const modeLabel = { conventional: 'Conventional', eco_adaptive: 'Eco-Adaptive', passive: 'Passive' };
+    document.getElementById('targetTableTitle').textContent =
+      'Target Detection Results — ' + (modeLabel[_ppiMode] || _ppiMode);
+    const results = _sonarData[_ppiMode].results;
+    document.getElementById('sonarTargetBody').innerHTML = results.map((t, i) => `
+      <tr>
+        <td style="color:var(--muted)">${i + 1}</td>
+        <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;
+              background:${t.color};margin-right:6px;vertical-align:middle;"></span>${t.label}</td>
+        <td>${(t.range_m / 1000).toFixed(2)} km</td>
+        <td style="font-family:monospace">${t.ts} dB</td>
+        <td style="font-family:monospace">${t.snr_dB !== null ? t.snr_dB + ' dB' : '— (passive)'}</td>
+        <td>${(t.pd * 100).toFixed(1)}%</td>
+        <td><span class="severity-badge severity-${t.detected ? 'high' : 'low'}">${t.detected ? 'DETECTED' : 'missed'}</span></td>
+      </tr>
+    `).join('');
   }
 </script>
 </body>
