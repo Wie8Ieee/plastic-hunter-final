@@ -66,7 +66,7 @@ Runtime files:
 | `POST` | `/demo` | Reset and reseed demo detections |
 | `GET` | `/results/{filename}` | Serve an annotated result image |
 | `GET` | `/evidence` | Return technical evidence sheet data |
-| `GET` | `/disclosure` | Return technical scope, library, dataset, and limitation disclosure |
+| `GET` | `/disclosure` | Return AI methods, external resources, libraries, datasets, and limitation disclosure |
 | `POST` | `/sonar/ping` | Run the sonar scenario simulation |
 
 ## Sonar Simulation

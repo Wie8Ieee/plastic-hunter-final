@@ -621,7 +621,7 @@
         <div class="card-title" style="margin-bottom:0;">Eco-Sonar Sustainability Impact</div>
         <div style="display:flex;gap:8px;">
           <button class="btn-sm" onclick="showEvidenceModal()">Evidence Sheet</button>
-          <button class="btn-sm" onclick="showDisclosureModal()">Technical Disclosure</button>
+          <button class="btn-sm" onclick="showDisclosureModal()">AI / External Resources</button>
         </div>
       </div>
       <div class="eco-kpis">
@@ -846,11 +846,11 @@
   </div>
 </div>
 
-<!-- Technical Disclosure Modal -->
+<!-- AI / External Resources Disclosure Modal -->
 <div class="modal-overlay" id="disclosureModal" onclick="closeModal('disclosureModal')">
   <div class="modal-box" onclick="event.stopPropagation()">
     <div class="modal-hdr">
-      <div class="card-title" style="margin-bottom:0;">Technical Resource Disclosure</div>
+      <div class="card-title" style="margin-bottom:0;">AI / External Resources Disclosure</div>
       <button class="modal-close" onclick="closeModal('disclosureModal')">✕</button>
     </div>
     <div id="disclosureContent" style="font-size:0.83rem;line-height:1.7;">Loading…</div>
@@ -1660,6 +1660,10 @@
       const d = await disclosureRes.json();
       document.getElementById('disclosureContent').innerHTML = `
         <p style="color:var(--muted);font-size:0.79rem;margin-bottom:18px;">${d.note}</p>
+        <div class="disclose-section">
+          <h4>AI / Model Methods</h4>
+          ${d.ai_methods.map(t => `<p><b>${t.name}</b>: ${t.use}</p>`).join('')}
+        </div>
         <div class="disclose-section">
           <h4>Libraries &amp; Frameworks</h4>
           <ul>${d.libraries.map(l => `<li><b>${l.name}</b> (${l.version}) — ${l.purpose}</li>`).join('')}</ul>

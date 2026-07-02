@@ -59,7 +59,7 @@ requirements.txt         Python runtime dependencies
 | GET | `/stats` | Dashboard statistics and documented estimates |
 | POST | `/demo` | Reset seeded demo data |
 | GET | `/evidence` | Judge-ready evidence sheet data |
-| GET | `/disclosure` | Technical scope, library, dataset, and limitation disclosure |
+| GET | `/disclosure` | AI methods, external resources, libraries, datasets, and limitation disclosure |
 | POST | `/sonar/ping` | Sonar scenario simulation |
 
 ## Dashboard Interpretation

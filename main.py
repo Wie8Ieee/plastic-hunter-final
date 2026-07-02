@@ -250,6 +250,16 @@ async def evidence():
 @app.get("/disclosure")
 async def disclosure():
     return JSONResponse({
+        "ai_methods": [
+            {
+                "name": "Research-backed computer vision validation",
+                "use": "YOLOv8s, Faster R-CNN, and MobileNet SSD were evaluated on marine debris datasets; the live interface remains lightweight for deployment.",
+            },
+            {
+                "name": "Eco-sonar simulation",
+                "use": "Physics-based sonar calculations estimate SNR, detection probability, duty cycle, and sound exposure trade-offs.",
+            },
+        ],
         "libraries": [
             {"name": "FastAPI",          "version": "0.115+",   "purpose": "REST API framework"},
             {"name": "Uvicorn",          "version": "0.30+",    "purpose": "ASGI server"},
