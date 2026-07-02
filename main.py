@@ -12,7 +12,7 @@ from database import get_all_results, get_stats, init_db, reset_and_reseed, save
 from detector import run_detection
 from sonar import run_sonar_scenario, trade_off_explanation
 
-app = FastAPI(title="Plastic Hunter AI", version="1.0.0")
+app = FastAPI(title="Plastic Hunter", version="1.0.0")
 logger = logging.getLogger("plastic_hunter")
 
 REPOSITORY_URL = "https://github.com/Wie8Ieee/plastic-hunter-final"
@@ -250,9 +250,6 @@ async def evidence():
 @app.get("/disclosure")
 async def disclosure():
     return JSONResponse({
-        "ai_tools": [
-            {"name": "Replit AI (Claude)", "use": "Code generation, architecture design, and debugging assistance"},
-        ],
         "libraries": [
             {"name": "FastAPI",          "version": "0.115+",   "purpose": "REST API framework"},
             {"name": "Uvicorn",          "version": "0.30+",    "purpose": "ASGI server"},

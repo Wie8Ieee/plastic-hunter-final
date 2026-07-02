@@ -1,6 +1,6 @@
-# Plastic Hunter AI
+# Plastic Hunter
 
-Plastic Hunter AI is a marine pollution monitoring prototype for the IEEE AESS Sustainability Hackathon 2026. It combines a research-backed computer-vision validation track with a reproducible eco-sonar simulation and a browser-based mission dashboard.
+Plastic Hunter is a marine pollution monitoring prototype for the IEEE AESS Sustainability Hackathon 2026. It combines a research-backed computer-vision validation track with a reproducible eco-sonar simulation and a browser-based mission dashboard.
 
 The project is designed for a live technical demonstration: upload a surface image, inspect annotated detections, review geospatial monitoring data, run sonar trade-off scenarios, and generate a concise evidence sheet.
 
@@ -66,7 +66,7 @@ Runtime files:
 | `POST` | `/demo` | Reset and reseed demo detections |
 | `GET` | `/results/{filename}` | Serve an annotated result image |
 | `GET` | `/evidence` | Return technical evidence sheet data |
-| `GET` | `/disclosure` | Return AI/tooling/data disclosure |
+| `GET` | `/disclosure` | Return technical scope, library, dataset, and limitation disclosure |
 | `POST` | `/sonar/ping` | Run the sonar scenario simulation |
 
 ## Sonar Simulation
@@ -119,6 +119,13 @@ Run locally:
 python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
+Run with Docker:
+
+```bash
+docker build -t plastic-hunter .
+docker run --rm -p 8000:8000 plastic-hunter
+```
+
 Open:
 
 ```text
@@ -156,10 +163,6 @@ curl -X POST http://localhost:8000/demo
 - Store per-object CV classes in the database for historical type analytics.
 - Add authenticated multi-user monitoring workflows.
 - Add exportable reports for cleanup operations and field validation.
-
-## Repository Notes
-
-The Python FastAPI app is the runtime project. Some Node/React workspace files are scaffold artifacts from earlier prototyping and are not required to run the submitted demo.
 
 ## License
 

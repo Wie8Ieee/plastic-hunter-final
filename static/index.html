@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Plastic Hunter AI</title>
+  <title>Plastic Hunter</title>
 
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -74,7 +74,7 @@
     }
     .nav-tab.active { color: var(--accent); }
 
-    /* ─── MAIN LAYOUT ─── */
+    /* ─── PAGE LAYOUT ─── */
     main { max-width: 1400px; margin: 0 auto; padding: 28px 24px; }
     .section { display: none; }
     .section.active { display: block; }
@@ -183,10 +183,10 @@
     .conf-bar { height: 100%; border-radius: 3px; transition: width .5s; }
     .conf-value { font-size: 0.8rem; color: var(--muted); min-width: 38px; text-align: right; }
 
-    .placeholder-msg {
+    .empty-state {
       text-align: center; padding: 48px 24px; color: var(--muted);
     }
-    .placeholder-msg .big { font-size: 2.5rem; margin-bottom: 12px; }
+    .empty-state .big { font-size: 2.5rem; margin-bottom: 12px; }
 
     /* ─── MAP ─── */
     #leaflet-map { height: 480px; border-radius: var(--radius); border: 1px solid var(--border); }
@@ -359,7 +359,7 @@
       padding: 16px; background: #050a12; min-height: 200px;
     }
     #ppiCanvas { border-radius: 50%; display: block; max-width: 100%; max-height: 340px; }
-    .ppi-placeholder {
+    .ppi-empty-state {
       position: absolute; text-align: center;
       color: var(--muted); font-size: 0.82rem; line-height: 1.7; pointer-events: none;
     }
@@ -393,7 +393,7 @@
       font-size: 1.25rem; cursor: pointer; line-height: 1; padding: 2px 6px;
     }
     .modal-close:hover { color: var(--fg); }
-    /* ─── ECO SUSTAINABILITY KPIs ─── */
+    /* ─── ECO KPIs ─── */
     .btn-sm {
       padding: 6px 14px; font-size: 0.75rem; border-radius: 8px;
       background: var(--surface2); border: 1px solid var(--border);
@@ -427,7 +427,7 @@
 <nav>
   <div class="logo">
     <div class="logo-icon" style="font-size:13px; font-weight:800; color:#fff; letter-spacing:-0.5px;">PH</div>
-    Plastic Hunter <span>AI</span>
+    Plastic <span>Hunter</span>
     <span class="nav-badge">YOLOv8</span>
   </div>
   <div class="nav-tabs">
@@ -471,9 +471,9 @@
 
       <div class="result-panel">
         <div class="card" id="resultCard">
-          <div class="placeholder-msg" id="resultPlaceholder">
-            <div class="big" style="font-size:2rem; color:var(--accent);">[ AI ]</div>
-            <div>Upload an image to begin AI analysis</div>
+          <div class="empty-state" id="resultEmptyState">
+            <div class="big" style="font-size:2rem; color:var(--accent);">[ CV ]</div>
+            <div>Upload an image to begin computer-vision analysis</div>
             <div style="margin-top:8px; font-size:0.8rem;">
               Detects bottles, bags, nets, and other marine debris
             </div>
@@ -621,7 +621,7 @@
         <div class="card-title" style="margin-bottom:0;">Eco-Sonar Sustainability Impact</div>
         <div style="display:flex;gap:8px;">
           <button class="btn-sm" onclick="showEvidenceModal()">Evidence Sheet</button>
-          <button class="btn-sm" onclick="showDisclosureModal()">AI Disclosure</button>
+          <button class="btn-sm" onclick="showDisclosureModal()">Technical Disclosure</button>
         </div>
       </div>
       <div class="eco-kpis">
@@ -766,7 +766,7 @@
         </div>
         <div class="ppi-wrap">
           <canvas id="ppiCanvas" width="320" height="320"></canvas>
-          <div class="ppi-placeholder" id="ppiPlaceholder">Run a scenario to view<br>the sonar PPI display</div>
+          <div class="ppi-empty-state" id="ppiEmptyState">Run a scenario to view<br>the sonar PPI display</div>
         </div>
         <div class="ppi-legend" id="ppiLegend" style="display:none">
           <span><span class="ppi-legend-dot" style="background:#ef4444"></span>Ghost Net</span>
@@ -846,11 +846,11 @@
   </div>
 </div>
 
-<!-- AI Disclosure Modal -->
+<!-- Technical Disclosure Modal -->
 <div class="modal-overlay" id="disclosureModal" onclick="closeModal('disclosureModal')">
   <div class="modal-box" onclick="event.stopPropagation()">
     <div class="modal-hdr">
-      <div class="card-title" style="margin-bottom:0;">AI / External Resource Disclosure</div>
+      <div class="card-title" style="margin-bottom:0;">Technical Resource Disclosure</div>
       <button class="modal-close" onclick="closeModal('disclosureModal')">✕</button>
     </div>
     <div id="disclosureContent" style="font-size:0.83rem;line-height:1.7;">Loading…</div>
@@ -895,7 +895,7 @@
       document.getElementById('annotationCanvas').style.display = 'none';
       document.getElementById('detectBtn').disabled = false;
       document.getElementById('resultContent').style.display = 'none';
-      document.getElementById('resultPlaceholder').style.display = 'block';
+      document.getElementById('resultEmptyState').style.display = 'block';
     };
     reader.readAsDataURL(selectedFile);
   }
@@ -950,7 +950,7 @@
   }
 
   function displayResult(data) {
-    document.getElementById('resultPlaceholder').style.display = 'none';
+    document.getElementById('resultEmptyState').style.display = 'none';
     document.getElementById('resultContent').style.display = 'block';
 
     const badge = document.getElementById('severityBadge');
@@ -1039,7 +1039,7 @@
     document.getElementById('annotationCanvas').style.display = 'none';
     document.getElementById('detectBtn').disabled = true;
     document.getElementById('resultContent').style.display = 'none';
-    document.getElementById('resultPlaceholder').style.display = 'block';
+    document.getElementById('resultEmptyState').style.display = 'block';
     document.getElementById('fileInput').value = '';
   }
 
@@ -1272,7 +1272,7 @@
       document.getElementById('sonarKpis').style.display = '';
       document.getElementById('sonarCharts').style.display = '';
       document.getElementById('ppiLegend').style.display = '';
-      document.getElementById('ppiPlaceholder').style.display = 'none';
+      document.getElementById('ppiEmptyState').style.display = 'none';
 
       renderSonarKPIs();
       setPpiMode(_ppiMode);
@@ -1660,10 +1660,6 @@
       const d = await disclosureRes.json();
       document.getElementById('disclosureContent').innerHTML = `
         <p style="color:var(--muted);font-size:0.79rem;margin-bottom:18px;">${d.note}</p>
-        <div class="disclose-section">
-          <h4>AI Tools</h4>
-          ${d.ai_tools.map(t => `<p><b>${t.name}</b>: ${t.use}</p>`).join('')}
-        </div>
         <div class="disclose-section">
           <h4>Libraries &amp; Frameworks</h4>
           <ul>${d.libraries.map(l => `<li><b>${l.name}</b> (${l.version}) — ${l.purpose}</li>`).join('')}</ul>

@@ -1,8 +1,8 @@
-# Plastic Hunter AI - Competition Technical Brief
+# Plastic Hunter - Competition Technical Brief
 
 ## Executive Summary
 
-Plastic Hunter AI is a marine pollution monitoring prototype for the IEEE AESS Sustainability Hackathon 2026. The system combines a lightweight browser demo, a FastAPI backend, SQLite mission logging, a research-backed CV validation track, and a reproducible eco-sonar simulation.
+Plastic Hunter is a marine pollution monitoring prototype for the IEEE AESS Sustainability Hackathon 2026. The system combines a lightweight browser demo, a FastAPI backend, SQLite mission logging, a research-backed CV validation track, and a reproducible eco-sonar simulation.
 
 The project is not presented as deployed hardware. It is a software demonstration of an integrated monitoring workflow:
 
@@ -59,7 +59,7 @@ requirements.txt         Python runtime dependencies
 | GET | `/stats` | Dashboard statistics and documented estimates |
 | POST | `/demo` | Reset seeded demo data |
 | GET | `/evidence` | Judge-ready evidence sheet data |
-| GET | `/disclosure` | AI/tool/data disclosure |
+| GET | `/disclosure` | Technical scope, library, dataset, and limitation disclosure |
 | POST | `/sonar/ping` | Sonar scenario simulation |
 
 ## Dashboard Interpretation

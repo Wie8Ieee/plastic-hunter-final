@@ -1,5 +1,5 @@
 """
-Plastic Hunter AI — Eco-Sonar Simulation Engine
+Plastic Hunter - Eco-Sonar Simulation Engine
 IEEE AESS Sustainability Hackathon 2026 — Challenge 3
 
 Implements the active sonar equation, transmission loss (spherical spreading
