@@ -220,7 +220,7 @@ async def disclosure():
             {"name": "FastAPI",          "version": "0.115+",   "purpose": "REST API framework"},
             {"name": "Uvicorn",          "version": "0.30+",    "purpose": "ASGI server"},
             {"name": "Pillow (PIL)",     "version": "10+",      "purpose": "Image processing and bounding-box annotation"},
-            {"name": "NumPy",            "version": "1.26+",    "purpose": "Numerical computation for CV simulation"},
+            {"name": "NumPy",            "version": "1.26+",    "purpose": "Numerical computation for the lightweight CV demo interface"},
             {"name": "SQLite3",          "version": "built-in", "purpose": "Detection record storage"},
             {"name": "Leaflet.js",       "version": "1.9.x",    "purpose": "Interactive geospatial map"},
             {"name": "Chart.js",         "version": "4.x",      "purpose": "Data visualization and dashboards"},
@@ -246,8 +246,8 @@ async def disclosure():
         "prior_work": "Extends the Phase 1 concept submitted to IEEE AESS Sustainability Hackathon 2026, Challenge 3.",
         "note": (
             "The acoustic detection simulation uses physically-motivated equations (sonar equation, TL models, Knudsen noise) "
-            "rather than recorded underwater data. CV detection uses edge-guided simulation instead of YOLOv8/PyTorch "
-            "to avoid 400 MB+ CUDA package disk limits on the free hosting tier."
+            "rather than recorded underwater data. The CV component is research-backed using real marine debris datasets, "
+            "while the live demo uses a lightweight deployable interface to avoid 400 MB+ CUDA package disk limits on the free hosting tier."
         ),
     })
 

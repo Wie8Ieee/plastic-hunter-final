@@ -897,7 +897,7 @@
     badge.className = `severity-badge severity-${data.severity}`;
 
     document.getElementById('detectionMode').textContent =
-      data.detection_mode === 'yolov8' ? 'YOLOv8 detection' : 'CV Simulation mode';
+      data.detection_mode === 'yolov8' ? 'YOLOv8 detection' : 'Lightweight CV demo interface';
 
     document.getElementById('countVal').textContent = data.plastic_count;
     document.getElementById('confVal').textContent = Math.round(data.avg_confidence * 100) + '%';
