@@ -1,6 +1,7 @@
 import os
 import random
 import sqlite3
+import time
 from pathlib import Path
 from typing import Any, Dict
 
@@ -73,7 +74,9 @@ async def detect(
         raise HTTPException(status_code=400, detail="Empty file uploaded.")
 
     try:
+        t0 = time.time()
         result = run_detection(image_bytes, file.filename or "upload.jpg")
+        processing_time_ms = round((time.time() - t0) * 1000, 1)
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
 
@@ -93,17 +96,19 @@ async def detect(
         avg_confidence=result["avg_confidence"],
         latitude=lat,
         longitude=lon,
+        processing_time_ms=processing_time_ms,
     )
 
     return JSONResponse({
-        "id": record_id,
-        "plastic_count": result["plastic_count"],
-        "avg_confidence": result["avg_confidence"],
-        "severity": result["severity"],
-        "detections": result["detections"],
-        "annotated_image": f"/results/{result['annotated_image']}",
-        "detection_mode": result["detection_mode"],
-        "location": {"latitude": lat, "longitude": lon},
+        "id":                 record_id,
+        "plastic_count":      result["plastic_count"],
+        "avg_confidence":     result["avg_confidence"],
+        "severity":           result["severity"],
+        "detections":         result["detections"],
+        "annotated_image":    f"/results/{result['annotated_image']}",
+        "detection_mode":     result["detection_mode"],
+        "processing_time_ms": processing_time_ms,
+        "location":           {"latitude": lat, "longitude": lon},
     })
 
 

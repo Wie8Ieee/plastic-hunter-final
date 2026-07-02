@@ -1,0 +1,161 @@
+✅ 1. Repository (GitHub)
+☐ الكود مرفوع بالكامل.
+☐ جميع الملفات مرتبة.
+☐ لا يوجد ملفات ناقصة.
+☐ المشروع يعمل بعد Clone مباشرة.
+☐ يوجد README احترافي.
+☐ خطوات التشغيل واضحة.
+☐ جميع المتطلبات (Dependencies) مكتوبة.
+☐ يوجد شرح للـ Parameters.
+☐ يوجد Assumptions.
+☐ يوجد Reproduction Steps.
+✅ 2. Working Proof of Concept
+☐ المشروع يعمل بالكامل.
+☐ لا يوجد Errors.
+☐ جميع الأزرار تعمل.
+☐ لا يوجد Placeholder.
+☐ النظام يعمل Offline.
+☐ الديمو مستقر.
+✅ 3. Sonar System
+Sonar Modes
+☐ Passive Mode
+☐ Active Mode
+☐ Hybrid Mode
+Sonar Simulation
+☐ Source Level
+☐ Noise Level
+☐ Transmission Loss
+☐ Signal Level
+☐ Detection Threshold
+☐ Duty Cycle
+☐ Energy Consumption
+☐ Acoustic Exposure
+Validation
+☐ Low Noise
+☐ Medium Noise
+☐ High Noise
+☐ Near Target
+☐ Medium Range
+☐ Long Range
+✅ 4. Computer Vision
+☐ رفع صورة.
+☐ كشف البلاستيك.
+☐ Bounding Boxes.
+☐ Confidence Score.
+☐ عدد البلاستيك.
+☐ نوع البلاستيك.
+☐ صورة Annotated.
+☐ JSON Output.
+☐ زمن التنفيذ.
+✅ 5. Database
+
+يحفظ:
+
+☐ وقت الكشف.
+☐ الموقع.
+☐ عدد البلاستيك.
+☐ النوع.
+☐ Confidence.
+☐ Sonar Mode.
+☐ Energy.
+☐ Acoustic Exposure.
+☐ Processing Time.
+✅ 6. Dashboard
+☐ Statistics.
+☐ Charts.
+☐ Detection Results.
+☐ Sonar Results.
+☐ Sustainability KPIs.
+☐ Comparison.
+☐ Interactive Map.
+✅ 7. Charts
+☐ Plastic Detection.
+☐ Plastic Types.
+☐ Confidence.
+☐ Energy.
+☐ Acoustic Exposure.
+☐ Duty Cycle.
+☐ Baseline vs Eco-Friendly.
+☐ Processing Time.
+✅ 8. Map
+☐ Leaflet Map.
+☐ Marker لكل Detection.
+☐ معلومات Marker.
+☐ تحديث تلقائي.
+✅ 9. Baseline Comparison
+
+مقارنة بين:
+
+☐ Conventional Sonar.
+☐ Plastic Hunter AI.
+
+وتحتوي:
+
+☐ Duty Cycle.
+☐ Source Level.
+☐ Energy.
+☐ Acoustic Exposure.
+☐ Detection.
+☐ Processing Time.
+☐ Percentage Improvement.
+✅ 10. Sustainability
+☐ Energy Reduction.
+☐ Acoustic Reduction.
+☐ Duty Cycle Reduction.
+☐ Detection Performance Retained.
+✅ 11. Validation
+☐ أكثر من Test Case.
+☐ نتائج واضحة.
+☐ Trade-off Analysis.
+✅ 12. Live Demo
+
+الديمو يعرض:
+
+☐ Upload Image.
+☐ Detection.
+☐ Bounding Boxes.
+☐ Database.
+☐ Map.
+☐ Dashboard.
+☐ Sonar Simulation.
+☐ Comparison.
+☐ Evidence Sheet.
+✅ 13. Backup Demo
+☐ فيديو 60–90 ثانية.
+☐ يعمل بدون إنترنت.
+✅ 14. IEEE Evidence Sheet
+
+صفحة واحدة تحتوي على:
+
+☐ Problem.
+☐ Core Function.
+☐ Baseline.
+☐ Improved Case.
+☐ Test Conditions.
+☐ Technical KPI.
+☐ Sustainability KPI.
+☐ Limitation.
+☐ Repository Link.
+✅ 15. Presentation
+☐ 5 دقائق فقط.
+☐ سهلة القراءة.
+☐ مشكلة.
+☐ الحل.
+☐ Architecture.
+☐ Demo.
+☐ Results.
+☐ Sustainability.
+☐ Conclusion.
+✅ 16. AI & External Resources
+☐ AI Disclosure.
+☐ Libraries.
+☐ Datasets.
+☐ References.
+☐ Standards.
+✅ 17. Final Quality
+☐ لا يوجد Bugs.
+☐ لا يوجد Crashes.
+☐ جميع الأزرار تعمل.
+☐ جميع الرسوم تعرض بيانات حقيقية.
+☐ الكود مرتب.
+☐ يمكن شرح كل جزء أمام الحكام.
