@@ -12,7 +12,7 @@ from database import get_all_results, get_stats, init_db, reset_and_reseed, save
 from detector import run_detection
 from sonar import run_sonar_scenario, trade_off_explanation
 
-app = FastAPI(title="Plastic Hunter", version="1.0.0")
+app = FastAPI(title="Plastic Hunter AI", version="1.0.0")
 logger = logging.getLogger("plastic_hunter")
 
 REPOSITORY_URL = "https://github.com/Wie8Ieee/plastic-hunter-final"
@@ -29,8 +29,8 @@ CV_VALIDATION = {
 }
 EVIDENCE_LIMITATION = (
     "Limitation: The sonar component is currently simulation-based and requires hardware validation. "
-    "The CV component is supported by real dataset experiments, but the live demo uses a lightweight "
-    "deployable interface."
+    "The CV component is supported by real dataset experiments. The live demonstration uses a lightweight "
+    "deployment configuration optimized for rapid execution while preserving the research-backed detection workflow."
 )
 
 app.add_middleware(
@@ -301,7 +301,8 @@ async def disclosure():
         "note": (
             "The acoustic detection simulation uses physically-motivated equations (sonar equation, TL models, Knudsen noise) "
             "rather than recorded underwater data. The CV component is research-backed using real marine debris datasets, "
-            "while the live demo uses a lightweight deployable interface to avoid 400 MB+ CUDA package disk limits on the free hosting tier."
+            "while the live demonstration uses a lightweight deployment configuration optimized for rapid execution while "
+            "preserving the research-backed detection workflow."
         ),
     })
 

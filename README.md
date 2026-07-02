@@ -1,40 +1,88 @@
-# Plastic Hunter
+# Plastic Hunter AI
 
-Plastic Hunter is a marine pollution monitoring prototype for the IEEE AESS Sustainability Hackathon 2026. It combines a research-backed computer-vision validation track with a reproducible eco-sonar simulation and a browser-based mission dashboard.
+**Plastic Hunter AI is an integrated marine monitoring platform combining computer vision and eco-adaptive sonar simulation for sustainable marine debris detection.**
 
-The project is designed for a live technical demonstration: upload a surface image, inspect annotated detections, review geospatial monitoring data, run sonar trade-off scenarios, and generate a concise evidence sheet.
+> **Research Foundation**  
+> This project is supported by our research on deep learning-based marine debris detection using the Trash-ICRA19 benchmark and cross-domain evaluation on the River Floating Trash Dataset.
 
-## What It Demonstrates
+Team EcoNauts  
+IEEE AESS Sustainability Hackathon 2026 Finalist
 
-- Surface plastic monitoring through a lightweight deployable CV demo interface.
-- Research-backed CV validation using real marine debris datasets.
-- Eco-sonar sustainability trade-offs using reproducible physics-based simulation.
-- SQLite-backed mission logging, dashboard analytics, map visualization, and evidence generation.
+## Overview
 
-## Research Foundation
+Plastic Hunter AI provides a deployment-ready FastAPI application with a browser dashboard for marine debris monitoring. The platform combines image-based surface detection, SQLite-backed mission logging, geospatial visualization, eco-sonar trade-off simulation, analytics, and a judge-ready evidence sheet.
 
-The computer vision component is research-backed using real marine debris datasets.
-Our team trained and evaluated YOLOv8s, Faster R-CNN, and MobileNet SSD on Trash-ICRA19, with cross-domain testing on the River Floating Trash Dataset.
-YOLOv8s achieved 97.77% mAP@0.5 at 122.10 FPS.
+The live demonstration uses a lightweight deployment configuration optimized for rapid execution while preserving the research-backed detection workflow.
 
-Cross-domain validation:
+## Screenshots
 
-| Dataset | Best Model | Metric |
-|---|---:|---:|
-| Trash-ICRA19 | YOLOv8s | 97.77% mAP@0.5, 122.10 FPS |
-| River Floating Trash Dataset | Faster R-CNN | 32.22% mAP@0.5 |
+### Hero Screenshot
 
-The live demo uses a lightweight Pillow/NumPy interface so it can run on constrained deployment environments without downloading large GPU model packages. This interface is not presented as hardware-validated or production CV inference.
+![Hero Screenshot](docs/assets/screenshots/hero.png)
+
+### Dashboard
+
+![Dashboard](docs/assets/screenshots/dashboard.png)
+
+### Sonar
+
+![Sonar](docs/assets/screenshots/sonar.png)
+
+### Map
+
+![Map](docs/assets/screenshots/map.png)
+
+### Evidence Sheet
+
+![Evidence Sheet](docs/assets/screenshots/evidence.png)
+
+### Detection
+
+![Detection](docs/assets/screenshots/detection.png)
+
+### Mission Flow
+
+![Mission Flow](docs/assets/screenshots/mission-flow.png)
 
 ## Architecture
 
+![Plastic Hunter AI Architecture](docs/assets/architecture.svg)
+
 ```text
-Browser SPA (static/index.html)
-  -> FastAPI application (main.py)
-    -> Lightweight CV demo interface (detector.py)
-    -> Eco-sonar simulation engine (sonar.py)
-    -> SQLite persistence and analytics (database.py)
-    -> Evidence and disclosure endpoints
+User
+↓
+FastAPI API
+↓
+Computer Vision
+↓
+Sonar Engine
+↓
+SQLite
+↓
+Analytics
+↓
+Dashboard
+```
+
+## Project Structure
+
+```text
+plastic-hunter-final/
+├── main.py                         # FastAPI app, API routes, evidence and disclosure endpoints
+├── detector.py                     # Lightweight deployable CV demo interface
+├── sonar.py                        # Eco-adaptive sonar simulation engine
+├── database.py                     # SQLite persistence, seeded demo records, analytics
+├── static/
+│   ├── index.html                  # Browser dashboard
+│   └── favicon.ico
+├── docs/
+│   └── assets/
+│       ├── architecture.svg
+│       └── screenshots/
+├── requirements.txt
+├── Dockerfile
+├── .dockerignore
+└── SUBMISSION_CONCEPT_DOCUMENT.md
 ```
 
 Runtime files:
@@ -42,10 +90,35 @@ Runtime files:
 - `results/` stores annotated upload images generated during use.
 - `detections.db` is created automatically and seeded by `database.py`.
 
+## Research Foundation
+
+### Published Research
+
+The computer vision component is research-backed using real marine debris datasets.  
+Our team trained and evaluated YOLOv8s, Faster R-CNN, and MobileNet SSD on Trash-ICRA19, with cross-domain testing on the River Floating Trash Dataset.  
+YOLOv8s achieved 97.77% mAP@0.5 at 122.10 FPS.
+
+### Models
+
+- YOLOv8s
+- Faster R-CNN
+- MobileNet SSD
+
+### Results
+
+| Dataset | Best Model | Metric |
+|---|---:|---:|
+| Trash-ICRA19 | YOLOv8s | 97.77% mAP@0.5, 122.10 FPS |
+| River Floating Trash Dataset | Faster R-CNN | 32.22% mAP@0.5 |
+
+### Deployment in Plastic Hunter AI
+
+The deployed demo uses a lightweight image-analysis interface for fast execution in constrained environments. The evidence sheet separates live demo behavior from the real-dataset research validation metrics.
+
 ## Mission Workflow
 
-1. Mission started with seeded or uploaded site evidence.
-2. Passive sonar mode estimates low-impact acoustic anomaly detection.
+1. Mission starts with seeded or uploaded site evidence.
+2. Passive sonar estimates low-impact acoustic anomaly detection.
 3. Signal analysis computes SNR and detection probability.
 4. Hybrid decision compares conventional and eco-adaptive active sonar.
 5. CV verification logs surface image evidence.
@@ -71,7 +144,7 @@ Runtime files:
 
 ## Sonar Simulation
 
-The sonar module is simulation-based. It implements:
+The sonar component is simulation-based and implements:
 
 - Mackenzie sound-speed calculation.
 - Spherical spreading plus Thorp absorption.
@@ -92,8 +165,6 @@ Default eco-adaptive comparison:
 All sonar values are reproducible calculations, not hardware test results.
 
 ## Dashboard Notes
-
-Dashboard values are labeled by source:
 
 - Observed values come from the SQLite `detections` table.
 - CV validation metrics come from the team's research evaluation.
@@ -122,11 +193,11 @@ python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 Run with Docker:
 
 ```bash
-docker build -t plastic-hunter .
-docker run --rm -p 8000:8000 plastic-hunter
+docker build -t plastic-hunter-ai .
+docker run --rm -p 8000:8000 plastic-hunter-ai
 ```
 
-Open:
+Open browser at:
 
 ```text
 http://localhost:8000
@@ -135,13 +206,13 @@ http://localhost:8000
 ## Reproducibility Checks
 
 ```bash
-python -m py_compile main.py database.py detector.py sonar.py
+python -m compileall .
 curl http://localhost:8000/healthz
 curl http://localhost:8000/stats
 curl http://localhost:8000/evidence
 ```
 
-The default database seed is deterministic enough for demo use and can be regenerated with:
+The default database seed can be regenerated with:
 
 ```bash
 curl -X POST http://localhost:8000/demo
@@ -150,11 +221,19 @@ curl -X POST http://localhost:8000/demo
 ## Limitations
 
 - The sonar component is currently simulation-based and requires hardware validation.
-- The CV component is supported by real dataset experiments, but the live demo uses a lightweight deployable interface.
-- The live demo does not run YOLOv8/PyTorch inference because deployment disk limits make that impractical.
+- The CV component is supported by real dataset experiments. The live demonstration uses a lightweight deployment configuration optimized for rapid execution while preserving the research-backed detection workflow.
 - Sonar transmission loss does not include bathymetry, multipath, or ray tracing.
 - Passive sonar mode is an acoustic-anomaly estimate, not semantic classification.
 - Demo upload locations are user-supplied or selected from seeded coastal coordinates; production deployment should ingest trusted GPS metadata.
+
+## References
+
+- Trash-ICRA19 marine debris dataset.
+- River Floating Trash Dataset.
+- Mackenzie K.V. (1981), nine-term equation for sound speed in seawater.
+- Thorp W.H. (1967), low-frequency attenuation coefficient.
+- Knudsen-Wenz ambient ocean noise model.
+- IEEE AESS Sustainability Hackathon 2026 research and submission materials.
 
 ## Future Work
 

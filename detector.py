@@ -1,5 +1,5 @@
 """
-Plastic Hunter - Detection Engine
+Plastic Hunter AI - Detection Engine
 
 Uses a lightweight deployable computer-vision demo interface built on
 Pillow + NumPy. The live interface analyses image colour statistics,
@@ -210,7 +210,7 @@ def _draw_boxes(image: Image.Image, detections: List[Dict[str, Any]]) -> Image.I
         draw.text((x1 + 5, tag_y + 3), text, fill=(255, 255, 255), font=font)
 
     # Watermark strip
-    wm = f"Plastic Hunter  ·  {len(detections)} item(s) detected"
+    wm = f"Plastic Hunter AI  ·  {len(detections)} item(s) detected"
     try:
         wb = small_font.getbbox(wm)
         ww = wb[2] - wb[0] + 16
