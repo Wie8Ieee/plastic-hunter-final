@@ -92,11 +92,11 @@ Runtime files:
 
 ## Research Foundation
 
-### Published Research
+The computer vision component is based on an internal research study conducted by the team using real marine debris datasets, including Trash-ICRA19 and the River Floating Trash Dataset.
 
-The computer vision component is research-backed using real marine debris datasets.  
-Our team trained and evaluated YOLOv8s, Faster R-CNN, and MobileNet SSD on Trash-ICRA19, with cross-domain testing on the River Floating Trash Dataset.  
-YOLOv8s achieved 97.77% mAP@0.5 at 122.10 FPS.
+The study evaluated YOLOv8s, Faster R-CNN, and MobileNet SSD. YOLOv8s achieved 97.77% mAP@0.5 at 122.10 FPS on Trash-ICRA19.
+
+The paper is currently under preparation / submission and is not yet publicly published.
 
 ### Models
 
@@ -233,7 +233,7 @@ curl -X POST http://localhost:8000/demo
 - Mackenzie K.V. (1981), nine-term equation for sound speed in seawater.
 - Thorp W.H. (1967), low-frequency attenuation coefficient.
 - Knudsen-Wenz ambient ocean noise model.
-- IEEE AESS Sustainability Hackathon 2026 research and submission materials.
+- Team internal research study, "Deep Learning-Based Marine Debris Detection for Smart Water Monitoring," unpublished manuscript, 2026.
 
 ## Future Work
 
