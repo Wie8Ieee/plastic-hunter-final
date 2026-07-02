@@ -61,6 +61,14 @@ DEBRIS_TARGETS = {
     "micro_cluster":  {"ts": -40.0, "label": "Micro-Plastic Cluster",   "color": "#06b6d4"},
 }
 
+PASSIVE_BASE_PD = {
+    "ghost_net": 0.62,
+    "plastic_drum": 0.50,
+    "submerged_bag": 0.30,
+    "foam_block": 0.24,
+    "micro_cluster": 0.08,
+}
+
 
 # ── Sonar equation ─────────────────────────────────────────────────────────────
 
@@ -197,9 +205,13 @@ def run_sonar_scenario(
         out = []
         for t in targets:
             if mode == "passive":
-                # Hydrophone only: large reflectors generate flow-induced
-                # and structural noise; estimate from TS proxy
-                pd = max(0.05, min(0.80, (t["ts"] + 45.0) / 30.0))
+                # Hydrophone-only mode can flag large/noisy debris as an acoustic anomaly,
+                # but it cannot actively insonify targets. Keep this conservative and
+                # range-dependent so passive listening is not overstated.
+                base_pd = PASSIVE_BASE_PD.get(t["key"], 0.10)
+                range_factor = math.exp(-t["range_m"] / 1800.0)
+                sea_penalty = max(0.35, 1.0 - 0.08 * max(sea_state - 1, 0))
+                pd = max(0.02, min(0.65, base_pd * range_factor * sea_penalty))
                 s  = None
             else:
                 tl = transmission_loss_dB(t["range_m"], frequency_kHz)
@@ -228,7 +240,7 @@ def run_sonar_scenario(
     sel_red_pct = round((1.0 - 10.0 ** ((eco_sel_cum - conv_sel_cum) / 10.0)) * 100.0, 1)
     dc_red_pct  = round((1.0 - eco_dc_pct / max(conv_dc_pct, 0.001)) * 100.0, 1)
     eco_ret_pct = round(eco_det  / max(conv_det, 1) * 100.0, 1)
-    pas_ret_pct = round(passive_det / max(conv_det, 1) * 100.0, 1)
+    pas_det_pct = round(passive_det / max(n_targets, 1) * 100.0, 1)
 
     # ── Range sweep: P_d vs range for all three modes ─────────────────────────
     sweep_ranges = [100, 250, 500, 750, 1000, 1500, 2000, 2500, 3000, 4000, 5000]
@@ -237,8 +249,9 @@ def run_sonar_scenario(
         tl = transmission_loss_dB(rm, frequency_kHz)
         c_snr = snr_dB(source_level, tl, ref_ts, nl)
         e_snr = snr_dB(eco_sl,       tl, ref_ts, nl)
-        # Passive: range-limited empirical decay
-        p_pd  = max(0.03, 0.72 * math.exp(-rm / 2200.0))
+        # Passive: conservative, range-limited acoustic-anomaly estimate
+        sea_penalty = max(0.35, 1.0 - 0.08 * max(sea_state - 1, 0))
+        p_pd = max(0.02, min(0.65, PASSIVE_BASE_PD["plastic_drum"] * math.exp(-rm / 1800.0) * sea_penalty))
         range_sweep.append({
             "range_m":    rm,
             "conv_pd":    round(detection_probability(c_snr), 3),
@@ -303,7 +316,7 @@ def run_sonar_scenario(
             "sel_reduction_pct":            sel_red_pct,
             "duty_cycle_reduction_pct":     dc_red_pct,
             "eco_detection_retention_pct":  eco_ret_pct,
-            "passive_detection_pct":        pas_ret_pct,
+            "passive_detection_pct":        pas_det_pct,
             "energy_reduction_pct":         energy_reduction_pct(
                                                 source_level, eco_sl, conv_dc_pct, eco_dc_pct),
             "n_targets":                    n_targets,
@@ -312,6 +325,17 @@ def run_sonar_scenario(
         },
         "range_sweep":  range_sweep,
         "dc_sweep":     dc_sweep,
+        "assumptions": [
+            "Simulation only: no underwater acoustic hardware has been validated yet.",
+            "Transmission loss uses spherical spreading plus Thorp absorption; no bathymetry, multipath, or ray tracing.",
+            "Passive mode is a conservative acoustic-anomaly estimate, not active target classification.",
+            "Target strengths are representative engineering assumptions for debris classes, not measured object-specific values.",
+        ],
+        "validation_notes": {
+            "reproducible_seed": seed,
+            "reference_target": "Large Plastic Drum, TS=-15 dB re 1 m^2",
+            "threshold": "P(detect) >= 0.50",
+        },
         "config": {
             "source_level":    source_level,
             "frequency_kHz":   frequency_kHz,

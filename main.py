@@ -1,9 +1,7 @@
-import os
+import logging
 import random
-import sqlite3
 import time
 from pathlib import Path
-from typing import Any, Dict
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,6 +13,25 @@ from detector import run_detection
 from sonar import run_sonar_scenario, trade_off_explanation
 
 app = FastAPI(title="Plastic Hunter AI", version="1.0.0")
+logger = logging.getLogger("plastic_hunter")
+
+REPOSITORY_URL = "https://github.com/Wie8Ieee/plastic-hunter-final"
+MAX_UPLOAD_BYTES = 20 * 1024 * 1024
+CV_VALIDATION = {
+    "dataset": "Trash-ICRA19",
+    "models": ["YOLOv8s", "Faster R-CNN", "MobileNet SSD"],
+    "best_model": "YOLOv8s",
+    "map_50": "97.77%",
+    "fps": "122.10",
+    "cross_domain_test": "River Floating Trash Dataset",
+    "best_cross_domain_model": "Faster R-CNN",
+    "best_cross_domain_map_50": "32.22%",
+}
+EVIDENCE_LIMITATION = (
+    "Limitation: The sonar component is currently simulation-based and requires hardware validation. "
+    "The CV component is supported by real dataset experiments, but the live demo uses a lightweight "
+    "deployable interface."
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -52,6 +69,11 @@ async def root():
     return FileResponse("static/index.html")
 
 
+@app.get("/healthz")
+async def healthz():
+    return JSONResponse({"status": "ok", "service": "plastic-hunter-ai"})
+
+
 @app.get("/favicon.ico")
 async def favicon():
     path = STATIC_DIR / "favicon.ico"
@@ -72,6 +94,8 @@ async def detect(
     image_bytes = await file.read()
     if len(image_bytes) == 0:
         raise HTTPException(status_code=400, detail="Empty file uploaded.")
+    if len(image_bytes) > MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=413, detail="Image exceeds the 20 MB upload limit.")
 
     try:
         t0 = time.time()
@@ -89,6 +113,8 @@ async def detect(
     else:
         lat = round(float(latitude), 4)
         lon = round(float(longitude), 4)
+        if not (-90 <= lat <= 90) or not (-180 <= lon <= 180):
+            raise HTTPException(status_code=422, detail="Latitude must be -90..90 and longitude must be -180..180.")
 
     record_id = save_detection(
         image_name=result["annotated_image"],
@@ -98,6 +124,7 @@ async def detect(
         longitude=lon,
         processing_time_ms=processing_time_ms,
     )
+    logger.info("stored detection id=%s image=%s count=%s", record_id, result["annotated_image"], result["plastic_count"])
 
     return JSONResponse({
         "id":                 record_id,
@@ -132,7 +159,12 @@ async def reload_demo():
 
 @app.get("/results/{filename}")
 async def get_result_image(filename: str):
-    path = RESULTS_DIR / filename
+    if Path(filename).name != filename:
+        raise HTTPException(status_code=400, detail="Invalid image filename.")
+    path = (RESULTS_DIR / filename).resolve()
+    results_root = RESULTS_DIR.resolve()
+    if results_root not in path.parents and path != results_root:
+        raise HTTPException(status_code=400, detail="Invalid image path.")
     if not path.exists():
         raise HTTPException(status_code=404, detail="Image not found.")
     return FileResponse(str(path), media_type="image/jpeg")
@@ -152,9 +184,9 @@ async def evidence():
             "Conventional continuous-active sonar creates acoustic disturbance harmful to cetaceans and marine life."
         ),
         "core_function": (
-            "Eco-adaptive sonar reduces source level −12 dB and duty cycle by 67% using adaptive ping management. "
-            "Combined with CV-based surface detection, the system provides multi-layer marine pollution monitoring "
-            "with quantifiable sustainability improvements."
+            "Eco-adaptive sonar compares conventional, passive, and reduced-duty active modes in a reproducible "
+            "simulation. CV-based surface detection is presented through a lightweight demo interface backed by "
+            "separate real-dataset research validation."
         ),
         "baseline": {
             "description": "Conventional active sonar: fixed 200 dB SL, continuous pinging at 5 s interval (2% duty cycle).",
@@ -164,7 +196,7 @@ async def evidence():
             "max_range_m":          c["max_range_m"],
         },
         "improved_case": {
-            "description": "Eco-adaptive sonar: 188 dB SL (−12 dB), 15 s ping interval (0.67% duty cycle).",
+            "description": "Eco-adaptive sonar: 188 dB SL (-12 dB), 15 s ping interval (0.67% duty cycle).",
             "cumulative_sel_dB":    e["sel_cum_dB"],
             "duty_cycle_pct":       e["duty_cycle_pct"],
             "n_pings_per_mission":  e["n_pings"],
@@ -188,6 +220,7 @@ async def evidence():
             "Technical KPI: YOLOv8s achieved 97.77% mAP@0.5 and 122.10 FPS on Trash-ICRA19 "
             "in our research evaluation."
         ),
+        "cv_validation": CV_VALIDATION,
         "primary_sustainability_kpi": {
             "metric":                      "Cumulative Sound Exposure Level reduction",
             "sel_reduction_dB":            m["sel_reduction_dB"],
@@ -196,12 +229,16 @@ async def evidence():
             "energy_reduction_pct":        m.get("energy_reduction_pct", 0.0),
         },
         "trade_off_explanation": trade_off_explanation(m),
-        "limitation": (
-            "Limitation: The sonar component is currently simulation-based and requires hardware validation. "
-            "The CV component is supported by real dataset experiments, but the live demo uses a lightweight "
-            "deployable interface."
-        ),
-        "repository_link":  "https://github.com/[team]/plastic-hunter-ai",
+        "limitation": EVIDENCE_LIMITATION,
+        "assumptions": sonar.get("assumptions", []),
+        "reproducibility": {
+            "default_seed": sonar.get("validation_notes", {}).get("reproducible_seed", 42),
+            "reference_target": sonar.get("validation_notes", {}).get("reference_target"),
+            "threshold": sonar.get("validation_notes", {}).get("threshold"),
+            "stats_source": "SQLite detections table seeded by database.py or updated by POST /detect",
+        },
+        "estimated_dashboard_method": stats.get("baseline_method"),
+        "repository_link":  REPOSITORY_URL,
         "cv_stats": {
             "total_scans":        stats["total_scans"],
             "plastics_detected":  stats["total_plastics_detected"],
@@ -234,6 +271,16 @@ async def disclosure():
             "NOAA Marine Debris Program — Plastic debris statistics and coastal hotspots",
         ],
         "datasets": [
+            {
+                "name": "Trash-ICRA19",
+                "description": "Research dataset used to train and evaluate YOLOv8s, Faster R-CNN, and MobileNet SSD.",
+                "source": "Team research evaluation",
+            },
+            {
+                "name": "River Floating Trash Dataset",
+                "description": "Cross-domain dataset used to test generalization beyond Trash-ICRA19.",
+                "source": "Team research evaluation",
+            },
             {
                 "name":        "Synthetic demo detections",
                 "description": (

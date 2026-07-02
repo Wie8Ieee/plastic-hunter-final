@@ -31,8 +31,13 @@ def init_db():
         try:
             cursor.execute(f"ALTER TABLE detections ADD COLUMN {col} {definition}")
             conn.commit()
-        except Exception:
+        except sqlite3.OperationalError:
             pass
+
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_detections_timestamp ON detections(timestamp)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_detections_severity ON detections(severity)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_detections_location ON detections(latitude, longitude)")
+    conn.commit()
 
     cursor.execute("SELECT COUNT(*) FROM detections")
     count = cursor.fetchone()[0]
@@ -176,10 +181,37 @@ def get_stats() -> Dict[str, Any]:
     cursor.execute("SELECT COUNT(*) FROM detections WHERE severity='Low'")
     low_severity = cursor.fetchone()[0] or 0
 
+    cursor.execute("SELECT COUNT(DISTINCT printf('%.4f,%.4f', latitude, longitude)) FROM detections")
+    active_sites = cursor.fetchone()[0] or 0
+
+    cursor.execute("""
+        SELECT image_name, plastic_count, avg_confidence, latitude, longitude, severity, timestamp
+        FROM detections
+        ORDER BY plastic_count DESC, avg_confidence DESC
+        LIMIT 1
+    """)
+    hotspot_row = cursor.fetchone()
+    top_hotspot = None
+    if hotspot_row:
+        top_hotspot = {
+            "image_name": hotspot_row[0],
+            "plastic_count": hotspot_row[1],
+            "avg_confidence": round(hotspot_row[2] or 0, 4),
+            "latitude": hotspot_row[3],
+            "longitude": hotspot_row[4],
+            "severity": hotspot_row[5],
+            "timestamp": hotspot_row[6],
+        }
+
     baseline_plastics = int(total_plastics * 1.35)
     reduction_pct = round(((baseline_plastics - total_plastics) / max(baseline_plastics, 1)) * 100, 1)
+    baseline_method = (
+        "Estimated manual-survey baseline using a transparent 1.35 multiplier for demo comparison; "
+        "not a measured environmental impact result."
+    )
 
-    # Plastic type distribution (proportional to detector weights)
+    # Estimated type mix for seeded demo rows. Live detections return per-object labels,
+    # but historical rows store only counts, so this chart is explicitly marked estimated.
     type_weights = [
         ("Plastic Bottle",      18),
         ("Plastic Bag",         14),
@@ -197,6 +229,9 @@ def get_stats() -> Dict[str, Any]:
         {"label": lbl, "count": max(1, round(total_plastics * w / total_w))}
         for lbl, w in type_weights
     ] if total_plastics > 0 else []
+    if plastic_type_distribution:
+        diff = total_plastics - sum(item["count"] for item in plastic_type_distribution)
+        plastic_type_distribution[0]["count"] += diff
 
     # Processing time stats
     cursor.execute("SELECT AVG(processing_time_ms) FROM detections WHERE processing_time_ms > 0")
@@ -207,13 +242,23 @@ def get_stats() -> Dict[str, Any]:
     return {
         "total_scans":              total_scans,
         "total_plastics_detected":  total_plastics,
+        "active_sites":             active_sites,
+        "top_hotspot":              top_hotspot,
         "avg_confidence":           avg_confidence,
         "avg_processing_time_ms":   avg_proc,
         "severity_breakdown":       {"High": high_severity, "Medium": med_severity, "Low": low_severity},
         "detections_per_day":       daily,
         "confidence_distribution":  conf_dist,
         "plastic_type_distribution": plastic_type_distribution,
+        "plastic_type_distribution_method": "Estimated from demo class weights; not ground-truth class counts.",
         "baseline_plastics":        baseline_plastics,
         "optimized_plastics":       total_plastics,
         "reduction_percentage":     reduction_pct,
+        "baseline_method":          baseline_method,
+        "mission_summary": {
+            "observed_scans": total_scans,
+            "observed_plastic_items": total_plastics,
+            "active_sites": active_sites,
+            "high_severity_events": high_severity,
+        },
     }

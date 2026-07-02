@@ -1,59 +1,44 @@
 # Plastic Hunter AI
 
-An AI-powered marine plastic pollution detection system. Upload ocean/beach images to detect plastic waste using Computer Vision, then visualize results on an interactive global map with statistics dashboards.
+## Runtime
 
-## Run & Operate
-
-- `artifacts/plastic-hunter: web` workflow runs the Python FastAPI server on port 8000
-- App is accessible at `/` (root preview path)
-- Backend API tested via `curl http://localhost:80/stats`
+- The production demo is the Python FastAPI app at the repository root.
+- Run command: `python -m uvicorn main:app --host 0.0.0.0 --port 8000`
+- Root path `/` serves `static/index.html`.
+- Health check: `GET /healthz`.
 
 ## Stack
 
-- **Backend**: Python 3.11 + FastAPI + Uvicorn
-- **Detection**: CV simulation using Pillow + NumPy (edge-guided bounding box placement)
-- **Database**: SQLite (`detections.db` at workspace root)
-- **Frontend**: Single-page HTML + Leaflet.js (map) + Chart.js (charts)
-- **Image annotation**: Pillow (draws bounding boxes and saves annotated JPEGs to `results/`)
+- Backend: Python 3.11, FastAPI, Uvicorn.
+- CV demo interface: Pillow and NumPy.
+- CV research validation: Trash-ICRA19 and River Floating Trash Dataset results documented in README and Evidence Sheet.
+- Sonar: reproducible simulation in `sonar.py`; not hardware validated.
+- Database: SQLite, auto-created and seeded by `database.py`.
+- Frontend: single-page HTML/CSS/JavaScript with Leaflet.js and Chart.js.
 
-## Where things live
+## Core Files
 
-- `main.py` — FastAPI routes (`POST /detect`, `GET /results`, `GET /stats`, static files)
-- `detector.py` — CV-simulation detection engine + Pillow annotation
-- `database.py` — SQLite schema init, CRUD, seeded demo data (12 global locations)
-- `static/index.html` — Full single-page frontend
-- `results/` — Annotated output images
-- `detections.db` — SQLite database (auto-created on startup)
-- `artifacts/plastic-hunter/.replit-artifact/artifact.toml` — Routes `/` → port 8000
+- `main.py` - API routes, validation, evidence and disclosure endpoints.
+- `detector.py` - lightweight deployable CV demo interface and annotation.
+- `sonar.py` - eco-sonar simulation and sustainability KPI calculations.
+- `database.py` - SQLite schema, indexes, seed data, dashboard analytics.
+- `static/index.html` - commercial-style mission dashboard and demo UI.
+- `README.md` - main technical documentation.
+- `SUBMISSION_CONCEPT_DOCUMENT.md` - competition technical brief.
 
-## Architecture decisions
+## Demo Flow
 
-- **Simulation over YOLOv8**: Ultralytics + PyTorch pulls 400 MB+ of CUDA packages that exceed Replit's disk quota on the free tier. The CV simulation uses Pillow edge detection + image statistics to place plausible bounding boxes — same API contract, zero model download.
-- **SQLite over PostgreSQL**: The app is self-contained Python with no Node.js DB dependency; SQLite is seeded with 12 realistic demo detections at startup.
-- **FastAPI serves static files**: The single-page frontend is served directly by FastAPI's `StaticFiles` mount — no separate Vite/Node server needed.
-- **Artifact.toml points to Python port**: The `artifacts/plastic-hunter` artifact was bootstrapped as react-vite to register the `/` preview path, then its `artifact.toml` was updated to point `localPort = 8000` at the Python server.
+Mission Started -> Passive Sonar -> Signal Analysis -> Hybrid Decision -> CV Verification -> Database -> Dashboard -> Map -> Evidence Generated.
 
-## Product
+## Scientific Scope
 
-- **Detect tab**: Upload any image → AI analysis → annotated image with colour-coded bounding boxes + confidence scores + severity rating
-- **Map tab**: Interactive Leaflet.js dark map with circle markers (sized by count, coloured by severity) for every detection event
-- **Dashboard tab**: KPI cards, bar chart (detections per day), doughnut chart (confidence distribution), baseline vs AI-optimised reduction banner (~25.5% improvement)
-- **History tab**: Full table of all detections from SQLite
+- CV research metrics are real project evaluation results.
+- Live CV demo is a lightweight deployable interface, not the trained GPU model.
+- Sonar KPIs are simulation calculations and require hardware validation.
+- Manual baseline and plastic type mix values are explicitly labeled estimated when shown.
 
-## User preferences
+## Operational Notes
 
-- Python FastAPI for backend
-- Single-page HTML frontend (not React)
-- Leaflet.js for maps, Chart.js for charts
-- SQLite for storage
-
-## Gotchas
-
-- Do NOT install `ultralytics` — it pulls PyTorch + CUDA packages that exceed disk quota
-- The `detections.db` is seeded with 12 demo rows on first startup; it persists across restarts
-- Annotated images are saved to `results/` — this directory must exist (created in `detector.py`)
-- The `artifacts/plastic-hunter` workflow runs the Python server — the Vite/React scaffold files in that directory are unused scaffolding
-
-## Pointers
-
-- See `pnpm-workspace` skill for the Node.js workspace structure (separate from this Python app)
+- Do not install `ultralytics` in the constrained demo environment unless a larger GPU-capable target is available.
+- `detections.db` and generated `results/` images are runtime artifacts and can be regenerated.
+- Node/React workspace artifacts are scaffolding from earlier prototyping and are not required for the submitted FastAPI demo.

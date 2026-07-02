@@ -198,7 +198,7 @@
     .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
 
     /* ─── DASHBOARD ─── */
-    .dash-top { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+    .dash-top { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 20px; }
     @media (max-width: 900px) { .dash-top { grid-template-columns: repeat(2, 1fr); } }
 
     .kpi {
@@ -235,10 +235,50 @@
 
     .compare-bar { margin-top: 16px; }
     .compare-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-    .compare-name { width: 80px; font-size: 0.82rem; color: var(--muted); }
+    .compare-name { width: 125px; font-size: 0.82rem; color: var(--muted); }
     .compare-track { flex: 1; height: 10px; background: var(--border); border-radius: 5px; overflow: hidden; }
     .compare-fill { height: 100%; border-radius: 5px; transition: width 1s ease; }
     .compare-num { font-size: 0.82rem; font-weight: 600; min-width: 32px; text-align: right; }
+
+    .mission-flow {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .mission-step {
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 78px;
+    }
+    .mission-step-num { font-size: 0.72rem; color: var(--accent); font-weight: 700; }
+    .mission-step-label { font-size: 0.82rem; font-weight: 700; margin-top: 7px; }
+    .mission-step-sub { font-size: 0.70rem; color: var(--muted); margin-top: 3px; line-height: 1.35; }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 900px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .stat-value { color: var(--accent); font-size: 1.7rem; font-weight: 800; margin-top: 8px; }
+    .stat-sub { color: var(--muted); font-size: 0.76rem; margin-top: 5px; line-height: 1.35; }
+    .status-detected { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+    .status-missed { background: rgba(100,116,139,0.15); color: #94a3b8; border: 1px solid rgba(100,116,139,0.3); }
 
     /* ─── HISTORY ─── */
     .history-table-wrap { overflow-x: auto; }
@@ -485,8 +525,8 @@
   <!-- ═══ DASHBOARD ═══ -->
   <section id="dashboard" class="section">
     <div class="page-header">
-      <h2>Statistics Dashboard</h2>
-      <p>Aggregate analysis of all detection events.</p>
+      <h2>Mission Control Dashboard</h2>
+      <p>Observed detections, research-backed CV validation, and reproducible eco-sonar sustainability KPIs.</p>
     </div>
     <div class="dash-top">
       <div class="kpi">
@@ -495,15 +535,19 @@
       </div>
       <div class="kpi">
         <div class="kpi-value" id="kpiPlastics">—</div>
-        <div class="kpi-label">Total Plastics Detected</div>
+        <div class="kpi-label">Observed Plastic Items</div>
       </div>
       <div class="kpi">
         <div class="kpi-value" id="kpiConf">—</div>
-        <div class="kpi-label">Average Confidence</div>
+        <div class="kpi-label">Average Demo Confidence</div>
       </div>
       <div class="kpi">
         <div class="kpi-value" id="kpiHigh" style="color:var(--red)">—</div>
         <div class="kpi-label">High Severity Events</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-value" id="kpiSites">—</div>
+        <div class="kpi-label">Active Sites</div>
       </div>
     </div>
 
@@ -520,6 +564,21 @@
       </div>
     </div>
 
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-title">Monitoring Mission Flow</div>
+      <div class="mission-flow">
+        <div class="mission-step"><div class="mission-step-num">01</div><div class="mission-step-label">Mission Started</div><div class="mission-step-sub">Scenario and site context</div></div>
+        <div class="mission-step"><div class="mission-step-num">02</div><div class="mission-step-label">Passive Sonar</div><div class="mission-step-sub">Low-impact acoustic listening</div></div>
+        <div class="mission-step"><div class="mission-step-num">03</div><div class="mission-step-label">Signal Analysis</div><div class="mission-step-sub">SNR and P(detect)</div></div>
+        <div class="mission-step"><div class="mission-step-num">04</div><div class="mission-step-label">Hybrid Decision</div><div class="mission-step-sub">Reduced-duty active mode</div></div>
+        <div class="mission-step"><div class="mission-step-num">05</div><div class="mission-step-label">CV Verification</div><div class="mission-step-sub">Surface image evidence</div></div>
+        <div class="mission-step"><div class="mission-step-num">06</div><div class="mission-step-label">Database</div><div class="mission-step-sub">SQLite mission log</div></div>
+        <div class="mission-step"><div class="mission-step-num">07</div><div class="mission-step-label">Dashboard</div><div class="mission-step-sub">KPIs and trends</div></div>
+        <div class="mission-step"><div class="mission-step-num">08</div><div class="mission-step-label">Map</div><div class="mission-step-sub">Geospatial hotspot view</div></div>
+        <div class="mission-step"><div class="mission-step-num">09</div><div class="mission-step-label">Evidence Generated</div><div class="mission-step-sub">Judge-ready summary</div></div>
+      </div>
+    </div>
+
     <div class="charts-grid">
       <div class="chart-box">
         <div class="card-title">Detections Per Day</div>
@@ -533,24 +592,26 @@
 
     <div class="charts-grid" style="margin-top:12px;">
       <div class="chart-box" style="grid-column: 1 / -1;">
-        <div class="card-title">Plastic Type Breakdown</div>
+        <div class="card-title">Estimated Plastic Type Mix</div>
         <canvas id="typesChart" height="90"></canvas>
+        <div id="typeDistNote" style="font-size:0.72rem;color:var(--muted);margin-top:10px;"></div>
       </div>
     </div>
 
     <!-- Baseline vs Optimised -->
     <div class="reduction-banner">
       <div class="reduction-left">
-        <h3>Baseline vs AI-Optimised Impact</h3>
+        <h3>Estimated Manual-Survey Baseline</h3>
         <p>
-          Without AI-assisted detection, manual survey methods miss an estimated 26% of plastic items.
-          Plastic Hunter AI enables faster, more accurate sweeps — directly reducing the volume of undetected waste left in marine environments.
+          This is a transparent demo assumption for detection-capacity comparison, not a measured cleanup or environmental-impact result.
+          The observed CV-assisted count is compared against an estimated manual-survey baseline.
         </p>
+        <div id="baselineMethodText" style="font-size:0.74rem;color:var(--muted);margin-top:8px;"></div>
         <div class="compare-bar" id="compareBar" style="margin-top:16px; min-width: 300px;"></div>
       </div>
       <div>
         <div class="reduction-value" id="reductionPct">—%</div>
-        <div class="reduction-sub">estimated reduction<br/>vs baseline</div>
+        <div class="reduction-sub">estimated detection gap<br/>vs manual baseline</div>
       </div>
     </div>
 
@@ -998,6 +1059,7 @@
 
     try {
       const res = await fetch('/results');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
       const rows = await res.json();
 
       rows.forEach(row => {
@@ -1034,12 +1096,14 @@
   async function loadDashboard() {
     try {
       const res = await fetch('/stats');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
       const s = await res.json();
 
       document.getElementById('kpiScans').textContent = s.total_scans;
       document.getElementById('kpiPlastics').textContent = s.total_plastics_detected;
       document.getElementById('kpiConf').textContent = Math.round(s.avg_confidence * 100) + '%';
       document.getElementById('kpiHigh').textContent = s.severity_breakdown.High || 0;
+      document.getElementById('kpiSites').textContent = s.active_sites || 0;
 
       // Bar chart
       const barCtx = document.getElementById('barChart').getContext('2d');
@@ -1117,9 +1181,12 @@
           }
         });
       }
+      document.getElementById('typeDistNote').textContent =
+        s.plastic_type_distribution_method || 'Estimated distribution for dashboard visualization.';
 
       // Reduction banner
       document.getElementById('reductionPct').textContent = s.reduction_percentage + '%';
+      document.getElementById('baselineMethodText').textContent = s.baseline_method || '';
 
       const maxVal = s.baseline_plastics;
       const optPct = Math.round((s.optimized_plastics / Math.max(maxVal, 1)) * 100);
@@ -1127,14 +1194,14 @@
 
       document.getElementById('compareBar').innerHTML = `
         <div class="compare-row">
-          <span class="compare-name" style="color:var(--muted)">Baseline</span>
+          <span class="compare-name" style="color:var(--muted)">Estimated Manual</span>
           <div class="compare-track">
             <div class="compare-fill" style="width:${basePct}%; background:#ef4444;"></div>
           </div>
           <span class="compare-num" style="color:#ef4444">${s.baseline_plastics}</span>
         </div>
         <div class="compare-row">
-          <span class="compare-name" style="color:var(--muted)">AI-Optimised</span>
+          <span class="compare-name" style="color:var(--muted)">Observed CV</span>
           <div class="compare-track">
             <div class="compare-fill" style="width:${optPct}%; background:#10b981;"></div>
           </div>
@@ -1154,6 +1221,7 @@
     tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted); padding:40px;">Loading…</td></tr>';
     try {
       const res = await fetch('/results');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
       const rows = await res.json();
       if (rows.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted); padding:40px;">No detections yet.</td></tr>';
@@ -1413,22 +1481,28 @@
         <td style="font-family:monospace">${t.ts} dB</td>
         <td style="font-family:monospace">${t.snr_dB !== null ? t.snr_dB + ' dB' : '— (passive)'}</td>
         <td>${(t.pd * 100).toFixed(1)}%</td>
-        <td><span class="severity-badge severity-${t.detected ? 'high' : 'low'}">${t.detected ? 'DETECTED' : 'missed'}</span></td>
+        <td><span class="severity-badge ${t.detected ? 'status-detected' : 'status-missed'}">${t.detected ? 'DETECTED' : 'missed'}</span></td>
       </tr>
     `).join('');
   }
 
   // ─── Eco-Sonar Sustainability Dashboard ─────────────────────────────────────
-  let _dashCompChart = null, _dashSwpChart = null;
+  let _dashCompChart = null, _dashSwpChart = null, _dashSonarSummary = null;
 
   async function fetchEcoSonarSummary() {
     try {
-      const fd = new FormData();
-      Object.entries({
-        source_level: 200, frequency_kHz: 10, pulse_ms: 100,
-        ping_interval_s: 5, sea_state: 3, depth_m: 50, mission_min: 60, seed: 42,
-      }).forEach(([k, v]) => fd.append(k, v));
-      const d = await fetch('/sonar/ping', { method: 'POST', body: fd }).then(r => r.json());
+      let d = _dashSonarSummary;
+      if (!d) {
+        const fd = new FormData();
+        Object.entries({
+          source_level: 200, frequency_kHz: 10, pulse_ms: 100,
+          ping_interval_s: 5, sea_state: 3, depth_m: 50, mission_min: 60, seed: 42,
+        }).forEach(([k, v]) => fd.append(k, v));
+        const res = await fetch('/sonar/ping', { method: 'POST', body: fd });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        d = await res.json();
+        _dashSonarSummary = d;
+      }
       const m = d.metrics;
 
       document.getElementById('dashSelRed').textContent    = m.sel_reduction_pct + '%';
@@ -1516,13 +1590,18 @@
     document.getElementById('evidenceModal').classList.add('open');
     document.getElementById('evidenceContent').innerHTML = 'Loading…';
     try {
-      const d = await fetch('/evidence').then(r => r.json());
+      const evidenceRes = await fetch('/evidence');
+      if (!evidenceRes.ok) throw new Error('HTTP ' + evidenceRes.status);
+      const d = await evidenceRes.json();
       const row = (lbl, val) => `
         <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:8px 12px 8px 0;color:var(--accent);font-weight:600;
                      white-space:nowrap;vertical-align:top;font-size:0.77rem;">${lbl}</td>
           <td style="padding:8px 0;color:var(--fg);">${val}</td>
         </tr>`;
+      const cv = d.cv_validation || {};
+      const assumptions = (d.assumptions || []).map(a => `<li>${a}</li>`).join('');
+      const repro = d.reproducibility || {};
       document.getElementById('evidenceContent').innerHTML = `
         <table style="width:100%;border-collapse:collapse;">
           ${row('Problem', d.problem)}
@@ -1541,6 +1620,14 @@
             '(eco ' + d.primary_technical_kpi.max_range_eco_m + ' m vs conv ' +
             d.primary_technical_kpi.max_range_conv_m + ' m)')}
           ${row('Technical KPI', d.technical_kpi)}
+          ${row('CV Validation',
+            'Dataset: <b>' + (cv.dataset || 'Trash-ICRA19') + '</b><br>' +
+            'Models: ' + ((cv.models || []).join(', ') || 'YOLOv8s, Faster R-CNN, MobileNet SSD') + '<br>' +
+            'Best model: <b>' + (cv.best_model || 'YOLOv8s') + '</b> · mAP@0.5 <b>' + (cv.map_50 || '97.77%') +
+            '</b> · FPS <b>' + (cv.fps || '122.10') + '</b><br>' +
+            'Cross-domain: ' + (cv.cross_domain_test || 'River Floating Trash Dataset') +
+            ' · best ' + (cv.best_cross_domain_model || 'Faster R-CNN') +
+            ' <b>' + (cv.best_cross_domain_map_50 || '32.22%') + ' mAP@0.5</b>')}
           ${row('Primary Sustainability KPI',
             'SEL reduced <b>' + d.primary_sustainability_kpi.sel_reduction_pct + '%</b> (' +
             d.primary_sustainability_kpi.sel_reduction_dB + ' dB) · DC cut <b>' +
@@ -1548,6 +1635,11 @@
             d.primary_sustainability_kpi.energy_reduction_pct + '%</b>')}
           ${row('Trade-off', d.trade_off_explanation)}
           ${row('Limitation', d.limitation)}
+          ${row('Assumptions', '<ul style="margin:0;padding-left:18px;">' + assumptions + '</ul>')}
+          ${row('Reproducibility',
+            'Seed: <b>' + repro.default_seed + '</b> · ' + repro.reference_target +
+            '<br><small style="color:var(--muted)">' + repro.threshold + ' · ' + repro.stats_source + '</small>')}
+          ${row('Estimated Dashboard Method', d.estimated_dashboard_method)}
           ${row('Repository', '<a href="' + d.repository_link + '" target="_blank" style="color:var(--accent);">' +
             d.repository_link + '</a>')}
         </table>
@@ -1563,7 +1655,9 @@
     document.getElementById('disclosureModal').classList.add('open');
     document.getElementById('disclosureContent').innerHTML = 'Loading…';
     try {
-      const d = await fetch('/disclosure').then(r => r.json());
+      const disclosureRes = await fetch('/disclosure');
+      if (!disclosureRes.ok) throw new Error('HTTP ' + disclosureRes.status);
+      const d = await disclosureRes.json();
       document.getElementById('disclosureContent').innerHTML = `
         <p style="color:var(--muted);font-size:0.79rem;margin-bottom:18px;">${d.note}</p>
         <div class="disclose-section">
