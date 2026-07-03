@@ -216,6 +216,8 @@ datasets/plastic_hunter/
   data.yaml
 ```
 
+The `datasets/` directory is intentionally ignored by Git. Keep full training datasets locally or in external storage, then document the source and preparation steps instead of committing the dataset to this repository.
+
 Each label line must use normalized YOLO format:
 
 ```text
@@ -278,7 +280,7 @@ Run training:
 python train_yolo.py
 ```
 
-Defaults: `yolov8s.pt`, `imgsz=640`, `epochs=50`, AutoBatch, output under `runs/detect/train`.
+Defaults: `yolov8s.pt`, `imgsz=640`, `epochs=50`, AutoBatch, output under `runs/detect/train`. Base model files and training outputs are intentionally ignored by Git; commit only the final deployment weight at `models/best.pt` when needed.
 
 ## Model Integration
 
