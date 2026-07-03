@@ -66,7 +66,14 @@ COASTAL_LOCATIONS = [
 
 @app.get("/")
 async def root():
-    return FileResponse("static/index.html")
+    return FileResponse(
+        "static/index.html",
+        headers={
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0",
+        },
+    )
 
 
 @app.get("/healthz")
