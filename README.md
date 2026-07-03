@@ -38,6 +38,16 @@ detections.db     SQLite database (auto-created on first run)
 pip install fastapi uvicorn pillow numpy python-multipart
 ```
 
+### Run on GitHub Codespaces
+
+1. Open this repository on GitHub.
+2. Click `Code` -> `Codespaces` -> `Create codespace on main`.
+3. Wait for the Codespace to finish building.
+4. The app starts automatically on port `8000`.
+5. In the `PORTS` tab, open the forwarded `8000` URL.
+
+The Codespaces port is configured as public for demos. The link stays available while the Codespace is running.
+
 ### Run Locally
 
 ```bash
