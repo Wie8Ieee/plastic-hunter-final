@@ -41,7 +41,9 @@ htmlcov/
 
 # Generated demo video artifacts
 Plastic_Hunter_AI_Live_Demo_Backup.mp4
+Plastic_Hunter_AI_Working_Proof_of_Concept.mp4
 demo/live_demo_video/
+demo/working_poc_video/
 
 # OS and editor files
 .DS_Store
