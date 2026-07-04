@@ -16,6 +16,8 @@ For a concise competition-facing summary of scope, architecture, APIs, limitatio
 
 The refreshed finalist slide deck is available at [docs/Plastic_Hunter_Final_Presentation.pptx](docs/Plastic_Hunter_Final_Presentation.pptx).
 
+Supporting explanation assets are included under [docs/assets](docs/assets), including the updated architecture diagram and focused screenshots of the dashboard, detection view, monitoring map, sonar simulation, evidence report, and mission workflow.
+
 ---
 
 ## Architecture
