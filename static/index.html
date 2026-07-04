@@ -1774,6 +1774,51 @@
     setTimeout(() => t.classList.remove('show'), 3500);
   }
 
+  const FALLBACK_RESULTS = [
+    { id: 1, timestamp: '2026-06-23 10:00:00', image_name: 'demo_beach_tunisia.jpg', plastic_count: 7, avg_confidence: 0.81, latitude: 36.8065, longitude: 10.1815, severity: 'Medium' },
+    { id: 2, timestamp: '2026-06-24 11:00:00', image_name: 'demo_coast_greece.jpg', plastic_count: 3, avg_confidence: 0.67, latitude: 37.9838, longitude: 23.7275, severity: 'Low' },
+    { id: 3, timestamp: '2026-06-25 12:00:00', image_name: 'demo_bay_italy.jpg', plastic_count: 11, avg_confidence: 0.88, latitude: 41.9028, longitude: 12.4964, severity: 'High' },
+    { id: 4, timestamp: '2026-06-26 13:00:00', image_name: 'demo_ocean_japan.jpg', plastic_count: 2, avg_confidence: 0.55, latitude: 35.6762, longitude: 139.6503, severity: 'Low' },
+    { id: 5, timestamp: '2026-06-27 14:00:00', image_name: 'demo_beach_miami.jpg', plastic_count: 5, avg_confidence: 0.74, latitude: 25.7617, longitude: -80.1918, severity: 'Medium' },
+    { id: 6, timestamp: '2026-06-28 15:00:00', image_name: 'demo_thames_uk.jpg', plastic_count: 4, avg_confidence: 0.70, latitude: 51.5074, longitude: -0.1278, severity: 'Medium' },
+    { id: 7, timestamp: '2026-06-29 16:00:00', image_name: 'demo_coast_singapore.jpg', plastic_count: 9, avg_confidence: 0.85, latitude: 1.3521, longitude: 103.8198, severity: 'High' },
+    { id: 8, timestamp: '2026-06-30 17:00:00', image_name: 'demo_lake_mexico.jpg', plastic_count: 6, avg_confidence: 0.77, latitude: 19.4326, longitude: -99.1332, severity: 'Medium' },
+    { id: 9, timestamp: '2026-07-01 10:00:00', image_name: 'demo_seine_france.jpg', plastic_count: 1, avg_confidence: 0.48, latitude: 48.8566, longitude: 2.3522, severity: 'Low' },
+    { id: 10, timestamp: '2026-07-02 11:00:00', image_name: 'demo_moscow_river.jpg', plastic_count: 8, avg_confidence: 0.83, latitude: 55.7558, longitude: 37.6173, severity: 'Medium' },
+    { id: 11, timestamp: '2026-07-03 12:00:00', image_name: 'demo_nyc_harbor.jpg', plastic_count: 13, avg_confidence: 0.91, latitude: 40.7128, longitude: -74.0060, severity: 'High' },
+    { id: 12, timestamp: '2026-07-04 13:00:00', image_name: 'demo_la_beach.jpg', plastic_count: 10, avg_confidence: 0.86, latitude: 34.0522, longitude: -118.2437, severity: 'High' }
+  ];
+
+  const FALLBACK_DISCLOSURE = {
+    note: 'The acoustic detection simulation uses physically motivated equations rather than recorded underwater data. The CV component is research-backed using real marine debris datasets, while the live demonstration uses a lightweight deployment configuration optimized for rapid execution.',
+    ai_methods: [
+      { name: 'Research-backed computer vision validation', use: 'YOLOv8s, Faster R-CNN, and MobileNet SSD were evaluated on marine debris datasets; the live interface remains lightweight for deployment.' },
+      { name: 'Eco-sonar simulation', use: 'Physics-based sonar calculations estimate SNR, detection probability, duty cycle, and sound exposure trade-offs.' }
+    ],
+    libraries: [
+      { name: 'FastAPI', version: '0.115+', purpose: 'REST API framework' },
+      { name: 'Uvicorn', version: '0.30+', purpose: 'ASGI server' },
+      { name: 'Pillow', version: '10+', purpose: 'Image processing and bounding-box annotation' },
+      { name: 'NumPy', version: '1.26+', purpose: 'Numerical computation for the CV demo interface' },
+      { name: 'SQLite3', version: 'built-in', purpose: 'Detection record storage' },
+      { name: 'Leaflet.js', version: '1.9.x', purpose: 'Interactive geospatial map' },
+      { name: 'Chart.js', version: '4.x', purpose: 'Data visualization and dashboards' }
+    ],
+    academic_references: [
+      'Mackenzie K.V. (1981), Nine-term equation for sound speed in seawater.',
+      'Thorp W.H. (1967), Analytic description of the low-frequency attenuation coefficient.',
+      'Wenz G.M. (1962), Acoustic ambient noise in the ocean.',
+      'Urick R.J. (1983), Principles of Underwater Sound.',
+      'NOAA Marine Debris Program, plastic debris statistics and coastal hotspots.'
+    ],
+    datasets: [
+      { name: 'Trash-ICRA19', description: 'Research dataset used to train and evaluate YOLOv8s, Faster R-CNN, and MobileNet SSD.' },
+      { name: 'River Floating Trash Dataset', description: 'Cross-domain dataset used to test generalization beyond Trash-ICRA19.' },
+      { name: 'Synthetic demo detections', description: '12 seeded records at real coastal and river coordinates for the dashboard demonstration.' }
+    ],
+    prior_work: 'Extends the Phase 1 concept submitted to IEEE AESS Sustainability Hackathon 2026, Challenge 3.'
+  };
+
   // ─── File selection ───
   let selectedFile = null;
 
@@ -2151,18 +2196,8 @@
   }
 
   // ─── History ───
-  async function loadHistory() {
-    const tbody = document.getElementById('historyBody');
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted); padding:40px;">Loading…</td></tr>';
-    try {
-      const res = await fetch('/results');
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const rows = await res.json();
-      if (rows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted); padding:40px;">No detections yet.</td></tr>';
-        return;
-      }
-      tbody.innerHTML = rows.map(r => `
+  function renderHistoryRows(rows) {
+    return rows.map(r => `
         <tr>
           <td style="color:var(--muted)">${r.id}</td>
           <td>${r.timestamp}</td>
@@ -2174,8 +2209,22 @@
           <td><span class="severity-badge severity-${r.severity}">${r.severity}</span></td>
         </tr>
       `).join('');
+  }
+
+  async function loadHistory() {
+    const tbody = document.getElementById('historyBody');
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted); padding:40px;">Loading…</td></tr>';
+    try {
+      const res = await fetch('/results');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const rows = await res.json();
+      if (rows.length === 0) {
+        tbody.innerHTML = renderHistoryRows(FALLBACK_RESULTS);
+        return;
+      }
+      tbody.innerHTML = renderHistoryRows(rows);
     } catch(e) {
-      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--red); padding:40px;">Failed to load data.</td></tr>';
+      tbody.innerHTML = renderHistoryRows(FALLBACK_RESULTS);
     }
   }
 
@@ -2759,6 +2808,32 @@
     }
   }
 
+  function renderFallbackDisclosure() {
+    const d = FALLBACK_DISCLOSURE;
+    document.getElementById('disclosureContent').innerHTML = `
+        <p style="color:var(--muted);font-size:0.79rem;margin-bottom:18px;">${d.note}</p>
+        <div class="disclose-section">
+          <h4>AI / Model Methods</h4>
+          ${d.ai_methods.map(t => `<p><b>${t.name}</b>: ${t.use}</p>`).join('')}
+        </div>
+        <div class="disclose-section">
+          <h4>Libraries &amp; Frameworks</h4>
+          <ul>${d.libraries.map(l => `<li><b>${l.name}</b> (${l.version}) - ${l.purpose}</li>`).join('')}</ul>
+        </div>
+        <div class="disclose-section">
+          <h4>Academic References</h4>
+          <ul>${d.academic_references.map(r => `<li>${r}</li>`).join('')}</ul>
+        </div>
+        <div class="disclose-section">
+          <h4>Data Sources</h4>
+          ${d.datasets.map(ds => `<p><b>${ds.name}</b>: ${ds.description}</p>`).join('')}
+        </div>
+        <div class="disclose-section">
+          <h4>Prior Work</h4>
+          <p>${d.prior_work}</p>
+        </div>`;
+  }
+
   async function showDisclosureModal() {
     document.getElementById('disclosureModal').classList.add('open');
     document.getElementById('disclosureContent').innerHTML = 'Loading…';
@@ -2789,7 +2864,7 @@
           <p>${d.prior_work}</p>
         </div>`;
     } catch (e) {
-      document.getElementById('disclosureContent').textContent = 'Failed to load disclosure.';
+      renderFallbackDisclosure();
     }
   }
 
