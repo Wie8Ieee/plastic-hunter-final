@@ -1514,7 +1514,6 @@
             <tr>
               <th>#</th>
               <th>Timestamp</th>
-              <th>Image</th>
               <th>Plastics</th>
               <th>Confidence</th>
               <th>Latitude</th>
@@ -1523,7 +1522,7 @@
             </tr>
           </thead>
           <tbody id="historyBody">
-            <tr><td colspan="8" style="text-align:center; color:var(--muted); padding:40px;">Loading…</td></tr>
+            <tr><td colspan="7" style="text-align:center; color:var(--muted); padding:40px;">Loading…</td></tr>
           </tbody>
         </table>
       </div>
@@ -1775,18 +1774,18 @@
   }
 
   const FALLBACK_RESULTS = [
-    { id: 1, timestamp: '2026-06-23 10:00:00', image_name: 'demo_beach_tunisia.jpg', plastic_count: 7, avg_confidence: 0.81, latitude: 36.8065, longitude: 10.1815, severity: 'Medium' },
-    { id: 2, timestamp: '2026-06-24 11:00:00', image_name: 'demo_coast_greece.jpg', plastic_count: 3, avg_confidence: 0.67, latitude: 37.9838, longitude: 23.7275, severity: 'Low' },
-    { id: 3, timestamp: '2026-06-25 12:00:00', image_name: 'demo_bay_italy.jpg', plastic_count: 11, avg_confidence: 0.88, latitude: 41.9028, longitude: 12.4964, severity: 'High' },
-    { id: 4, timestamp: '2026-06-26 13:00:00', image_name: 'demo_ocean_japan.jpg', plastic_count: 2, avg_confidence: 0.55, latitude: 35.6762, longitude: 139.6503, severity: 'Low' },
-    { id: 5, timestamp: '2026-06-27 14:00:00', image_name: 'demo_beach_miami.jpg', plastic_count: 5, avg_confidence: 0.74, latitude: 25.7617, longitude: -80.1918, severity: 'Medium' },
-    { id: 6, timestamp: '2026-06-28 15:00:00', image_name: 'demo_thames_uk.jpg', plastic_count: 4, avg_confidence: 0.70, latitude: 51.5074, longitude: -0.1278, severity: 'Medium' },
-    { id: 7, timestamp: '2026-06-29 16:00:00', image_name: 'demo_coast_singapore.jpg', plastic_count: 9, avg_confidence: 0.85, latitude: 1.3521, longitude: 103.8198, severity: 'High' },
-    { id: 8, timestamp: '2026-06-30 17:00:00', image_name: 'demo_lake_mexico.jpg', plastic_count: 6, avg_confidence: 0.77, latitude: 19.4326, longitude: -99.1332, severity: 'Medium' },
-    { id: 9, timestamp: '2026-07-01 10:00:00', image_name: 'demo_seine_france.jpg', plastic_count: 1, avg_confidence: 0.48, latitude: 48.8566, longitude: 2.3522, severity: 'Low' },
-    { id: 10, timestamp: '2026-07-02 11:00:00', image_name: 'demo_moscow_river.jpg', plastic_count: 8, avg_confidence: 0.83, latitude: 55.7558, longitude: 37.6173, severity: 'Medium' },
-    { id: 11, timestamp: '2026-07-03 12:00:00', image_name: 'demo_nyc_harbor.jpg', plastic_count: 13, avg_confidence: 0.91, latitude: 40.7128, longitude: -74.0060, severity: 'High' },
-    { id: 12, timestamp: '2026-07-04 13:00:00', image_name: 'demo_la_beach.jpg', plastic_count: 10, avg_confidence: 0.86, latitude: 34.0522, longitude: -118.2437, severity: 'High' }
+    { id: 1, timestamp: '2026-06-23 10:00:00', plastic_count: 7, avg_confidence: 0.81, latitude: 36.8065, longitude: 10.1815, severity: 'Medium' },
+    { id: 2, timestamp: '2026-06-24 11:00:00', plastic_count: 3, avg_confidence: 0.67, latitude: 37.9838, longitude: 23.7275, severity: 'Low' },
+    { id: 3, timestamp: '2026-06-25 12:00:00', plastic_count: 11, avg_confidence: 0.88, latitude: 41.9028, longitude: 12.4964, severity: 'High' },
+    { id: 4, timestamp: '2026-06-26 13:00:00', plastic_count: 2, avg_confidence: 0.55, latitude: 35.6762, longitude: 139.6503, severity: 'Low' },
+    { id: 5, timestamp: '2026-06-27 14:00:00', plastic_count: 5, avg_confidence: 0.74, latitude: 25.7617, longitude: -80.1918, severity: 'Medium' },
+    { id: 6, timestamp: '2026-06-28 15:00:00', plastic_count: 4, avg_confidence: 0.70, latitude: 51.5074, longitude: -0.1278, severity: 'Medium' },
+    { id: 7, timestamp: '2026-06-29 16:00:00', plastic_count: 9, avg_confidence: 0.85, latitude: 1.3521, longitude: 103.8198, severity: 'High' },
+    { id: 8, timestamp: '2026-06-30 17:00:00', plastic_count: 6, avg_confidence: 0.77, latitude: 19.4326, longitude: -99.1332, severity: 'Medium' },
+    { id: 9, timestamp: '2026-07-01 10:00:00', plastic_count: 1, avg_confidence: 0.48, latitude: 48.8566, longitude: 2.3522, severity: 'Low' },
+    { id: 10, timestamp: '2026-07-02 11:00:00', plastic_count: 8, avg_confidence: 0.83, latitude: 55.7558, longitude: 37.6173, severity: 'Medium' },
+    { id: 11, timestamp: '2026-07-03 12:00:00', plastic_count: 13, avg_confidence: 0.91, latitude: 40.7128, longitude: -74.0060, severity: 'High' },
+    { id: 12, timestamp: '2026-07-04 13:00:00', plastic_count: 10, avg_confidence: 0.86, latitude: 34.0522, longitude: -118.2437, severity: 'High' }
   ];
 
   const FALLBACK_DISCLOSURE = {
@@ -2035,7 +2034,6 @@
             <div style="font-size:0.82rem; color:#64748b;">${row.timestamp}</div>
             <div style="font-size:0.82rem; margin-top:4px;"><b>${row.plastic_count}</b> items detected</div>
             <div style="font-size:0.82rem;">Confidence: <b>${Math.round(row.avg_confidence * 100)}%</b></div>
-            <div style="font-size:0.82rem; color:#64748b; margin-top:4px; word-break:break-all;">${row.image_name}</div>
           </div>
         `);
         marker.on('click', () => renderMapDetail(row));
@@ -2061,7 +2059,6 @@
       <div class="map-detail-row"><span>Confidence</span><span>${Math.round(row.avg_confidence * 100)}%</span></div>
       <div class="map-detail-row"><span>Latitude</span><span>${row.latitude?.toFixed(4)}</span></div>
       <div class="map-detail-row"><span>Longitude</span><span>${row.longitude?.toFixed(4)}</span></div>
-      <div class="map-detail-row"><span>Image</span><span style="word-break:break-word;">${row.image_name}</span></div>
     `;
   }
 
@@ -2201,7 +2198,6 @@
         <tr>
           <td style="color:var(--muted)">${r.id}</td>
           <td>${r.timestamp}</td>
-          <td style="font-size:0.78rem; color:var(--muted); max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${r.image_name}</td>
           <td><b>${r.plastic_count}</b></td>
           <td>${Math.round(r.avg_confidence * 100)}%</td>
           <td>${r.latitude?.toFixed(4)}</td>
@@ -2213,7 +2209,7 @@
 
   async function loadHistory() {
     const tbody = document.getElementById('historyBody');
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted); padding:40px;">Loading…</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--muted); padding:40px;">Loading…</td></tr>';
     try {
       const res = await fetch('/results');
       if (!res.ok) throw new Error('HTTP ' + res.status);
