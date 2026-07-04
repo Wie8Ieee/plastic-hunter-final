@@ -12,6 +12,8 @@ Plastic Hunter AI is a dual-mode marine pollution detection system:
 
 2. **Eco-Sonar Pipeline** — Simulates active / passive / hybrid sonar for *subsurface* plastic debris detection using the standard sonar equation, Mackenzie sound-speed, Thorp absorption, and Knudsen-Wenz ambient noise. Quantifiably compares a conventional baseline against an eco-adaptive configuration that reduces acoustic SEL by ~98% while retaining >90% detection coverage.
 
+For a concise competition-facing summary of scope, architecture, APIs, limitations, and production readiness, see [docs/TECHNICAL_BRIEF.md](docs/TECHNICAL_BRIEF.md).
+
 ---
 
 ## Architecture
