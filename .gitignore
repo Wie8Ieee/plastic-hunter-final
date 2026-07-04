@@ -39,6 +39,10 @@ models/last.pt
 coverage/
 htmlcov/
 
+# Generated demo video artifacts
+Plastic_Hunter_AI_Live_Demo_Backup.mp4
+demo/live_demo_video/
+
 # OS and editor files
 .DS_Store
 Thumbs.db
