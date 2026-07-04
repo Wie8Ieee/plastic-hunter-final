@@ -39,7 +39,7 @@ detections.db     SQLite database (auto-created on first run)
 - Python 3.11+
 
 ```bash
-pip install fastapi uvicorn pillow numpy python-multipart
+pip install -r requirements.txt
 ```
 
 ### Run on GitHub Codespaces
@@ -58,7 +58,7 @@ The Codespaces port is configured as public for demos. The link stays available 
 python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-Open browser at `http://local7host:8000`
+Open browser at `http://localhost:8000`
 
 ---
 
